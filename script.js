@@ -1,71 +1,152 @@
 // adapted from http://stackoverflow.com/questions/12786797/how-to-draw-rectangles-dynamically-in-svg
 var svgns = "http://www.w3.org/2000/svg";
 
-let SIDE = 96;
+let SIDE = 40;//96;
 let x;
 let y;
+let sizeOfGrid = 10;
 
 //
-
+// make grid
+//todo make grid fill everything
 let cos30 = Math.cos(Math.PI / 6); // sqrt3/2
-let tan30 = Math.tan(Math.PI/6); // 1/sqrt3
+let tan30 = Math.tan(Math.PI / 6); // 1/sqrt3
 let sqrt3 = Math.sqrt(3);
-for (let i = -3; i <= 3; i++) {
 
-    for (let j = -3; j <= 3; j++) {
-    //x = 400 + i * SIDE * (cos30 + tan30 / 2 + 1 / (2 * cos30));
-    x = 400 + i * SIDE * sqrt3;
-    y = 400 + (2 * j + i) * SIDE;
+for (let i = 0; i <= sizeOfGrid; i++) {
+//for (let i = -3; i <= 3; i++) {
 
-    if(x<0 || x> 800 || y<0 || y> 800){
-        continue;
+for (let j = 0; j <= sizeOfGrid; j++) {
+//for (let j = -3; j <= 3; j++) {
+        //x = 400 + i * SIDE * (cos30 + tan30 / 2 + 1 / (2 * cos30));
+        x =   -(SIDE/sqrt3) + i * SIDE * sqrt3; //-(SIDE/sqrt3) to make the first hexagon align to the 0 of the grid 
+        y = (2*j + i%2) * SIDE;
+
+        if (x < 0 || x > 800 || y < 0 || y > 800) {
+            continue;
+        }
+
+        //let myPoints = `${x},${y} ${x + SIDE * cos30},${y + SIDE / 2} ${x + SIDE * cos30 + SIDE / 2 * tan30},${y} ${x + SIDE * cos30},${y - SIDE / 2}`
+        let myPoints = `${x},${y} ${x + SIDE * sqrt3 / 2},${y + SIDE / 2} ${x + SIDE * 2 / sqrt3},${y} ${x + SIDE * sqrt3 / 2},${y - SIDE / 2}`
+        //console.log(myPoints)
+
+        // rotate 60 degrees 6 times
+        for (let theta = 0; theta < 360; theta += 60) {
+
+            let myRotate = `rotate(${theta}, ${x}, ${y})`;
+            let myPoly = document.createElementNS(svgns, 'polygon');
+            myPoly.setAttributeNS(null, 'fill', "gray");
+            myPoly.setAttributeNS(null, 'stroke', "purple");
+            myPoly.setAttributeNS(null, 'points', myPoints);
+            myPoly.setAttributeNS(null, 'transform', myRotate);
+            document.getElementById('svgTurt').appendChild(myPoly);
+        }
+
     }
-
-    //let myPoints = `${x},${y} ${x + SIDE * cos30},${y + SIDE / 2} ${x + SIDE * cos30 + SIDE / 2 * tan30},${y} ${x + SIDE * cos30},${y - SIDE / 2}`
-    let myPoints = `${x},${y} ${x + SIDE * sqrt3/2},${y + SIDE / 2} ${x + SIDE * 2/sqrt3},${y} ${x + SIDE * sqrt3/2},${y - SIDE / 2}`
-    //console.log(myPoints)
-
-    // rotate 60 degrees 6 times
-    for (let theta = 0; theta < 360; theta += 60) {
-
-        let myRotate = `rotate(${theta}, ${x}, ${y})`;
-        let myPoly = document.createElementNS(svgns, 'polygon');
-        myPoly.setAttributeNS(null, 'fill', "lime");
-        myPoly.setAttributeNS(null, 'stroke', "purple");
-        myPoly.setAttributeNS(null, 'points', myPoints);
-        myPoly.setAttributeNS(null, 'transform', myRotate);
-        document.getElementById('svgHat').appendChild(myPoly);
-    }
-
-}
 }
 
 //*************************************************************
 
-x=400;
-y=400;
+x = -(SIDE/sqrt3) + (sizeOfGrid/2) * SIDE * sqrt3;
+y = (2*sizeOfGrid/2 + 1) * SIDE;
 
-hatPoints = `${x},${y} `
-hatPoints += ` ${x + SIDE * sqrt3/2},${y + SIDE / 2}`
-hatPoints += ` ${x + SIDE * 2/sqrt3},${y}`
-hatPoints += ` ${x + SIDE * sqrt3},${y}`
-hatPoints += ` ${x + SIDE * sqrt3},${y -SIDE}`
-hatPoints += ` ${x + SIDE * sqrt3/2},${y-3/2*SIDE}`
-hatPoints += ` ${x + SIDE * 2/sqrt3},${y-2*SIDE}`
-hatPoints += ` ${x + SIDE * sqrt3/2},${y-5/2*SIDE}`
-hatPoints += ` ${x},${y-2*SIDE}`
-hatPoints += ` ${x},${y-SIDE}`
-hatPoints += ` ${x-SIDE/sqrt3},${y-SIDE}`
-//hatPoints += ` ${x-SIDE*sqrt3/2},${y-SIDE/2}`
-// on different constituent tiles but along same line
-hatPoints += ` ${x-SIDE*2/sqrt3},${y}`
-hatPoints += ` ${x-SIDE*sqrt3/2},${y+SIDE/2}`
+// turtle vectors
+var turtVectors = [
+/* 1  */{x: 0, y: 0},
+/* 2  */{x: sqrt3 / 2, y: 1 / 2},
+/* 3  */{x: sqrt3 / 6, y: -1 / 2},
+/* 4  */{x: 1 / sqrt3, y: 0},
+/* 5  */{x: 0, y: -1},
+/* 6  */{x: -sqrt3 / 2, y: -1/2},
+/* 7  */{x: -sqrt3 / 2, y: -1/2},
+/* 8  */{x: -sqrt3 / 2, y: 1/2},
+/* 9  */{x: -sqrt3 / 6, y: -1 / 2},
+/* 10 */{x: -1 / sqrt3, y: 0},
+/* 11 */{x: 0, y: 1},
+/* 12 */{x: sqrt3 / 2, y: 1 / 2},
+/* 13 */{x: -sqrt3 / 6, y: 1 / 2},
+/* 14 */{x: sqrt3 / 6, y: 1 / 2}
+];
 
-console.log(hatPoints)
+//test vector adding
+let turtPoints = '';
+let tempX = 0, tempY = 0, tempsX = 0, tempsY = 0;
 
-hatPoly = document.createElementNS(svgns, 'polygon');
-hatPoly.setAttributeNS(null, 'fill', "blue");
-hatPoly.setAttributeNS(null, 'fill-opacity', "0.5");
-hatPoly.setAttributeNS(null, 'stroke', "purple");
-hatPoly.setAttributeNS(null, 'points', hatPoints);
-document.getElementById('svgHat').appendChild(hatPoly);
+let turtPolygonPoints = '';
+
+for(let i = 0; i < turtVectors.length; i++){
+    tempX +=  SIDE*turtVectors[i].x;
+    tempY += SIDE*turtVectors[i].y;
+    turtPoints += ` ${tempX},${tempY}`;
+
+    tempsX += turtVectors[i].x;
+    tempsY += turtVectors[i].y;
+    turtPolygonPoints += ` ${tempsX},${tempsY}`;
+    
+    
+}
+
+console.log(turtPoints)
+
+myScale = `scale(${SIDE}, ${SIDE})`;
+
+myTransform = `translate(${x}, ${y+SIDE*2})`;
+
+turtPolygon = document.createElementNS(svgns, 'polygon');
+turtPolygon.setAttributeNS(null, 'fill', "red");
+turtPolygon.setAttributeNS(null, 'fill-opacity', "0.5");
+turtPolygon.setAttributeNS(null, 'stroke', "black");
+turtPolygon.setAttributeNS(null, 'stroke-width', "2");
+turtPolygon.setAttributeNS(null, 'vector-effect', "non-scaling-stroke");
+//turtPolygon.setAttributeNS(null, 'transform', myTransform);
+turtPolygon.setAttributeNS(null, 'transform', `translate(${x}, ${y+SIDE*2}) scale(${SIDE},${SIDE}) `);
+turtPolygon.setAttributeNS(null, 'points', turtPolygonPoints);
+//turtPolygon.setAttributeNS(null, 'transform', ' scale(2,2)');
+document.getElementById('svgTurt').appendChild(turtPolygon);
+console.log(turtPolygon);
+
+myTransform = `translate(${x}, ${y})`;
+turtPoly = document.createElementNS(svgns, 'polygon');
+turtPoly.setAttributeNS(null, 'fill', "blue");
+turtPoly.setAttributeNS(null, 'fill-opacity', "0.5");
+turtPoly.setAttributeNS(null, 'stroke', "black");
+turtPoly.setAttributeNS(null, 'stroke-width', "2");
+turtPoly.setAttributeNS(null, 'transform', myTransform);
+turtPoly.setAttributeNS(null, 'points', turtPoints);
+document.getElementById('svgTurt').appendChild(turtPoly);
+console.log(turtPoly);
+
+/*
+//mirror and move up 2*SIDE
+turtPoly = turtPoly.cloneNode(true);
+//turtPoly.setAttributeNS(null, 'transform', `scale(-1, 1) translate(-${x * 2}, -${SIDE * 2})`);
+turtPoly.setAttributeNS(null, 'transform', `translate(0, -${SIDE * 2})`);
+turtPoly.setAttributeNS(null, 'fill-opacity', "0.3");
+document.getElementById('svgTurt').appendChild(turtPoly);
+console.log(turtPoly);
+
+//not mirror rotate and move up 2*SIDE
+turtPoly = turtPoly.cloneNode(true);
+turtPoly.setAttributeNS(null, 'fill-opacity', "0.5");
+turtPoly.setAttributeNS(null, 'transform', `rotate(60, ${x}, ${y}) translate(0, -${SIDE * 2})`);
+document.getElementById('svgTurt').appendChild(turtPoly);
+console.log(turtPoly);
+*/
+/* original implementation of turtle based on hat
+/* 1  turtPoints = `${x},${y} `;
+/* 2  turtPoints += ` ${x + SIDE * sqrt3 / 2},${y + SIDE / 2}`;
+/* 3  turtPoints += ` ${x + SIDE * 2 / sqrt3},${y}`;
+/* 4  turtPoints += ` ${x + SIDE * sqrt3},${y}`;
+/* 5  turtPoints += ` ${x + SIDE * sqrt3},${y - SIDE}`;
+/* 6  turtPoints += ` ${x + SIDE * sqrt3 / 2},${y - 3 / 2 * SIDE}`;
+/* 7  turtPoints += ` ${x},${y - 2 * SIDE}`;
+/* 8  turtPoints += ` ${x - SIDE * sqrt3 / 2},${y - 3 / 2 * SIDE}`;
+/* 9  turtPoints += ` ${x - SIDE * 2 / sqrt3},${y - SIDE * 2}`;
+/* 10 turtPoints += ` ${x - SIDE * (3 / sqrt3)},${y - SIDE * 2}`;
+/* 11 turtPoints += ` ${x - SIDE * (3 / sqrt3)},${y - SIDE * 1}`;
+/* 12 turtPoints += ` ${x - SIDE * sqrt3 / 2},${y - SIDE / 2}`;
+/* 13 turtPoints += ` ${x - SIDE * 2 / sqrt3},${y}`;
+/* 14 turtPoints += ` ${x - SIDE * sqrt3 / 2},${y + SIDE / 2}`;
+
+console.log(turtPoints);
+*/
