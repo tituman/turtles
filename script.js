@@ -6,9 +6,11 @@ var svgns = "http://www.w3.org/2000/svg";
 let SIDE = 40;//96;
 let x;
 let y;
-let sizeOfGrid = 10;
+let sizeOfGrid = 11;
 let sqrt3 = Math.sqrt(3);
 let myScale = `scale(${SIDE}, ${SIDE})`; //scale the whole svg to SIDE
+let stepsInXThirds = 1 / sqrt3; // from 1 hex to the next in X direction, but can be divided by 3
+let stepsInY = 2; // from 1 hex to the next in Y direction
 [x,y] = makeGridAndReturnMiddle();
 
 //create the turtle
@@ -19,14 +21,14 @@ createTurtle();
 
 let myTranslateCenter = `translate(${x}, ${y})`; //puts the turtle in the center of the grid snapped to a hexagon
 //let myTransform = `translate(${x}, ${y+SIDE*2})`; //puts the turtle one lower than the center of the grid
-let myTranslateLower = myTranslateCenter + ` translate(0, 2)`; //puts the turtle one lower 
-
+let myTranslateArbitrary = ` translate(${(2*3)*stepsInXThirds}, ${-0*stepsInY})`; 
+let myRotate = `rotate(${-1*60}, 0, 0)`;
 
 
 
 /******  turtle creations  *******/
 
-//create the turtle from unitary vector and scaled to SIDE, turtle is lower and red
+//create the turtle from unitary vector and scaled to SIDE, turtle is red and has been tested and rotated a lot
 turtPolygon = document.createElementNS(svgns, 'polygon');
 turtPolygon.setAttributeNS(null, 'fill', "red");
 turtPolygon.setAttributeNS(null, 'fill-opacity', "0.5");
@@ -34,7 +36,7 @@ turtPolygon.setAttributeNS(null, 'stroke', "black");
 turtPolygon.setAttributeNS(null, 'stroke-width', "2");
 turtPolygon.setAttributeNS(null, 'vector-effect', "non-scaling-stroke");
 turtPolygon.setAttributeNS(null, 'points', turtPointsUnitary);
-turtPolygon.setAttributeNS(null, 'transform', `${myScale} ${myTranslateLower} scale(-1,1)`);  
+turtPolygon.setAttributeNS(null, 'transform', `${myScale} ${myTranslateCenter} ${myTranslateArbitrary} scale(1,1)  ${myRotate}`);  
 document.getElementById('svgTurt').appendChild(turtPolygon);
 console.log(turtPolygon);
 
@@ -144,7 +146,7 @@ ${y} ${x + 1 * sqrt3 / 2},${y - 1 / 2}`;
             console.log(myPoints);
 
             //find the middle of the grid
-            if (i == sizeOfGrid/2 && j == sizeOfGrid/2) {
+            if (i == ~~(sizeOfGrid/2) && j == ~~(sizeOfGrid/2)) { //~~ means to make integer division (!)
                 console.log(`MIDDLE pos from grid: ${x} ${y}`);
                 middlePoints = [x, y];
             }
