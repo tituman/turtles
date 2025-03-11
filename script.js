@@ -29,7 +29,7 @@ let myRotate = `rotate(${-1*60}, 0, 0)`;
 
 //create the turtle from unitary vector and scaled to SIDE, turtle is red and has been tested and rotated a lot
 turtPolygon = document.createElementNS(svgns, 'polygon');
-turtPolygon.setAttributeNS(null, 'fill', "red");
+turtPolygon.setAttributeNS(null, 'fill', "pink");
 turtPolygon.setAttributeNS(null, 'fill-opacity', "0.5");
 turtPolygon.setAttributeNS(null, 'stroke', "black");
 turtPolygon.setAttributeNS(null, 'stroke-width', "2");
