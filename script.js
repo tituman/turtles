@@ -142,7 +142,7 @@ ${x + 1 * 2 / sqrt3},\
 ${y} ${x + 1 * sqrt3 / 2},${y - 1 / 2}`;
 
             
-            console.log(myPoints);
+            //console.log(myPoints);
 
             //find the middle of the grid
             if (i == ~~(sizeOfGrid/2) && j == ~~(sizeOfGrid/2)) { //~~ means to make integer division (!)
