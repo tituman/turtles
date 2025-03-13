@@ -2,13 +2,16 @@
 svgns = "http://www.w3.org/2000/svg";
 
 /******  preparations and constants  *******/
-let SIDE = 30;//96;
+let SIDE = 20;//96;
 let sizeOfSVGinX = 900;
 let sizeOfSVGinY = 900;
 //let x;
 //let y;
 //let sizeOfGrid = 11;
 let sqrt3 = Math.sqrt(3);
+
+//let myKiteScale = `scale(${factor},${factor})`;
+let myBaseTransform = `translate(${SIDE}, ${SIDE * sqrt3 / 2})`;
 let myScale = `scale(${SIDE}, ${SIDE})`; //scale the whole svg to SIDE
 
 //put SVG in the document
@@ -22,6 +25,7 @@ svg.style.height = sizeOfSVGinY;
 svg.style.backgroundColor = "#999999";
 svg.setAttributeNS(null, 'id', 'svgTest');
 document.getElementById("theTests").appendChild(svg);
+
 
 
 
@@ -39,68 +43,22 @@ let stepsInY = 2; // from 1 hex to the next in Y direction
 //create turtle from ~scaled~ unitary vector, turtle is at middle and blue
 
 let defs = document.createElementNS(svgns, 'defs');
-document.getElementById('svgTest').appendChild(defs);
+svg.appendChild(defs);
 let patt = document.createElementNS(svgns, 'pattern');
 patt.setAttributeNS(null, 'id', 'hexes');
 patt.setAttributeNS(null, 'patternUnits', 'userSpaceOnUse');
-//patt.setAttributeNS(null, 'x', `${1*SIDE}`);   // 40
-//patt.setAttributeNS(null, 'y', `${SIDE*sqrt3/2}`);  // 40  
-patt.setAttributeNS(null, 'width', `${3 * SIDE}`);   // 40
-patt.setAttributeNS(null, 'height', `${sqrt3 * SIDE}`);  // 40   
-patt.setAttributeNS(null, 'stroke-width', "1");
-patt.setAttributeNS(null, 'vector-effect', "non-scaling-stroke");
-//patt.setAttributeNS(null, 'patternTransform', myScale); 
+patt.setAttributeNS(null, 'width', `${3 * SIDE}`);
+patt.setAttributeNS(null, 'height', `${sqrt3 * SIDE}`);   
 defs.appendChild(patt);
 
 
-// let hex = document.createElementNS(svgns, 'polygon');
-// hex.setAttributeNS(null, 'points', "0,0 1,0 1,0.5 0,1 0,0.5");
-// hex.setAttributeNS(null, 'transform', `scale(9, 9)`);
-// hex.setAttributeNS(null, 'fill', "red");
-let myHexPoints = "";
-for (let i = 0; i < 6; i++) {
-    myHexPoints += `${Math.cos(i * Math.PI / 3)}, ${Math.sin(i * Math.PI / 3)} `;
-}
-let myHex = document.createElementNS(svgns, 'polygon');
-let myBaseTransform = `translate(${SIDE * 1}, ${SIDE * sqrt3 / 2})`;
-myHex.setAttributeNS(null, 'points', myHexPoints);
-myHex.setAttributeNS(null, 'fill', "none");
-myHex.setAttributeNS(null, 'stroke', "black");
-myHex.setAttributeNS(null, 'stroke-width', "1");
-myHex.setAttributeNS(null, 'vector-effect', "non-scaling-stroke");
-myHex.setAttributeNS(null, 'transform', `${myBaseTransform} ${myScale}`);
-patt.appendChild(myHex);
+//create hexes for the pattern
+addKitesToPattern();
+addHexesToPattern();
 
-let myTrasnformHex2 = `translate(1.5, ${sqrt3 / 2})`;
-myHex = myHex.cloneNode(true);
-myHex.setAttributeNS(null, 'stroke', "black");
-myHex.setAttributeNS(null, 'transform', `${myBaseTransform} ${myScale} ${myTrasnformHex2} `);
-patt.appendChild(myHex);
+createRectforPattern();
 
 
-//--> para el pattern!!! --> myHex.setAttributeNS(null, 'transform', ` translate(10, 10) scale (10,10)`);
-
-
-
-//patt.setAttributeNS(null, 'patternTransform', `scale(3, 3)`);
-
-//<rect width="200" height="200" x="0" y="0" stroke="black" fill="url(#patt)" />
-myRect = document.createElementNS(svgns, 'rect');
-myRect.setAttributeNS(null, 'width', sizeOfSVGinX);
-myRect.setAttributeNS(null, 'height', sizeOfSVGinY);
-myRect.setAttributeNS(null, 'x', "0");
-myRect.setAttributeNS(null, 'y', "0");
-myRect.setAttributeNS(null, 'stroke', "black");
-myRect.setAttributeNS(null, 'fill', "url(#hexes)");
-document.getElementById('svgTest').appendChild(myRect);
-
-let myTransform = `translate(200, 600) scale(20, 20)`;
-let myHex1 = myHex.cloneNode(true);
-let myHex2 = myHex.cloneNode(true);
-myHex1.setAttributeNS(null, 'transform', myTransform);
-myHex2.setAttributeNS(null, 'transform', `${myTransform} ${myTrasnformHex2} `);
-document.getElementById('svgTest').appendChild(myHex1);
-document.getElementById('svgTest').appendChild(myHex2);
 
 // find center of center hex
 let centerOfCenterHex = findCenterOfCenterHex();
@@ -112,13 +70,97 @@ myCric.setAttributeNS(null, 'cy', centerOfCenterHex.y);
 myCric.setAttributeNS(null, 'r', 10);
 myCric.setAttributeNS(null, 'fill', "red");
 
-document.getElementById('svgTest').appendChild(myCric);
+svg.appendChild(myCric);
 
 
 console.log(patt);
 
 
 
+
+function createRectforPattern() {
+    myRect = document.createElementNS(svgns, 'rect');
+    myRect.setAttributeNS(null, 'width', sizeOfSVGinX);
+    myRect.setAttributeNS(null, 'height', sizeOfSVGinY);
+    myRect.setAttributeNS(null, 'x', "0");
+    myRect.setAttributeNS(null, 'y', "0");
+    myRect.setAttributeNS(null, 'stroke', "black");
+    myRect.setAttributeNS(null, 'fill', "url(#hexes)");
+    svg.appendChild(myRect);
+}
+
+function addHexesToPattern() {
+    let myHexPoints = "";
+    for (let i = 0; i < 6; i++) {
+        myHexPoints += `${Math.cos(i * Math.PI / 3)}, ${Math.sin(i * Math.PI / 3)} `;
+    }
+    let myHex = document.createElementNS(svgns, 'polygon');
+    myHex.setAttributeNS(null, 'points', myHexPoints);
+    myHex.setAttributeNS(null, 'fill', "none");
+    myHex.setAttributeNS(null, 'stroke', "black");
+    myHex.setAttributeNS(null, 'stroke-width', "1.5");
+    myHex.setAttributeNS(null, 'vector-effect', "non-scaling-stroke");
+    myHex.setAttributeNS(null, 'transform', `${myBaseTransform} ${myScale} `);
+    patt.appendChild(myHex);
+    //svg.appendChild(myHex);
+
+    let myTrasnformHex2 = `translate(${1.5}, ${sqrt3 / 2})`;
+    myHex = myHex.cloneNode(true);
+    myHex.setAttributeNS(null, 'stroke', "black");
+    myHex.setAttributeNS(null, 'transform', `${myBaseTransform} ${myScale}${myTrasnformHex2} `);
+    patt.appendChild(myHex);
+    //svg.appendChild(myHex);
+   
+}
+
+
+
+function addKitesToPattern() {
+    let myPoints = `\
+    ${0},${0} \
+    ${3/4},${sqrt3/4} \
+    ${1},${0} \
+    ${3/4},${-sqrt3/4}`;
+
+
+    for (let theta = 0; theta < 360; theta += 60) {
+        let myRotate = `rotate(${theta}, ${0}, ${0})`;
+        let myPoly = document.createElementNS(svgns, 'polygon');
+        myPoly.setAttributeNS(null, 'fill', "none");
+        myPoly.setAttributeNS(null, 'stroke', "purple");
+        myPoly.setAttributeNS(null, 'stroke-width', "0.5");
+        myPoly.setAttributeNS(null, 'vector-effect', "non-scaling-stroke");
+        myPoly.setAttributeNS(null, 'points', myPoints);
+        myPoly.setAttributeNS(null, 'transform', `${myBaseTransform} ${myScale} ${myRotate} `);
+        svg.appendChild(myPoly);
+        patt.appendChild(myPoly);
+
+        myPoly = myPoly.cloneNode(true);
+        myPoly.setAttributeNS(null, 'stroke', "green");
+        myPoly.setAttributeNS(null, 'transform', `${myBaseTransform} ${myScale}  translate(${1.5}, ${sqrt3 / 2}) ${myRotate}`);
+        svg.appendChild(myPoly);
+        patt.appendChild(myPoly);
+
+        
+        myPoly = myPoly.cloneNode(true);
+        myPoly.setAttributeNS(null, 'stroke', "green");
+        myPoly.setAttributeNS(null, 'transform', `${myBaseTransform} ${myScale}  translate(${-1.5}, ${sqrt3 / 2}) ${myRotate}`);
+        svg.appendChild(myPoly);
+        patt.appendChild(myPoly);
+        myPoly = myPoly.cloneNode(true);
+        myPoly.setAttributeNS(null, 'stroke', "green");
+        myPoly.setAttributeNS(null, 'transform', `${myBaseTransform} ${myScale}  translate(${1.5}, ${-sqrt3 / 2}) ${myRotate}`);
+        svg.appendChild(myPoly);
+        patt.appendChild(myPoly)
+        myPoly = myPoly.cloneNode(true);
+        myPoly.setAttributeNS(null, 'stroke', "green");
+        myPoly.setAttributeNS(null, 'transform', `${myBaseTransform} ${myScale}  translate(${-1.5}, ${-sqrt3 / 2}) ${myRotate}`);
+        svg.appendChild(myPoly);
+        patt.appendChild(myPoly);
+
+        console.log(myPoly);
+    }
+}
 
 function findCenterOfCenterHex() {
 
