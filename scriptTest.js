@@ -11,7 +11,7 @@ let sqrt3 = Math.sqrt(3);
 let offsetfromZero = `translate(${1}, ${sqrt3 / 2})`;
 let myScale = `scale(${SIDE}, ${SIDE})`; //scale the whole svg to SIDE
 let gridStepsInX = 1.5; // from 1 hex to the next in X direction, steps always in 1.5
-let gridStepsIn = sqrt3/2; // from 1 hex to the next in Y direction
+let gridStepsInY = sqrt3/2; // from 1 hex to the next in Y direction
 
 //put SVG in the document
 let svg = createSvg();
@@ -40,16 +40,93 @@ myTurt = createTurtle(color="pink", stepsInX=2, stepsInY=0, stepsIn60Deg=1, inve
 //myTurt.setAttributeNS(null, 'transform', `${transCenter} ${myScale} ${myInvert} ${myTranslateArbitrary} ${myRotate} `);
 svg.appendChild(myTurt);
 
+/******** more testing */
+svg.addEventListener('mouseup', function (event) { evMouseUp(event) });
+let movingObject = null;
+var pt = svg.createSVGPoint();  // Created once for document
+let dragging = false;
+let offset={};
+let cursorpt={};
+function evMouseDown(e) {
+    pt.x = e.clientX;
+    pt.y = e.clientY;
+    dragging = true;
+    movingObject = e.srcElement;
 
+    // The cursor point, translated into svg coordinates
+    cursorpt =  pt.matrixTransform(svg.getScreenCTM().inverse());
+    console.log(`pt.x:${pt.x}, pt.y:${pt.y}`);
+    console.log("(cursorpt.x:" + cursorpt.x + ", cursorpt.y:" + cursorpt.y + ")");
+
+    
+  //offset = oMousePos(svg, e);
+    //console.log(e.srcElement.attributes.transform.nodeValue);
+    //e.srcElement.setAttributeNS(null, 'transform', `${ e.srcElement.attributes.transform.nodeValue} rotate(60,0,0)`);
+    //console.log(e.srcElement.attributes.transform.nodeValue);
+    //alert("click");
+}
+function evMouseMove(e) {
+    if (dragging) {
+        pt.x = e.clientX;
+        pt.y = e.clientY;
+        m = oMousePos(svg, e);
+        //var cursorpt = pt.matrixTransform(svg.getScreenCTM().inverse());
+        //console.log("(" + cursorpt.x + ", " + cursorpt.y + ")");
+        //let nextPos = findNextGridPosition(cursorpt.x, cursorpt.y);
+        
+        // e.srcElement.setAttributeNS(null, 'transform', `translate(${nextPos.x}, ${nextPos.y})`);
+        e.srcElement.setAttributeNS(null, 'transform', `translate(${m.x - offset.x}, ${m.y - offset.y})`);
+        console.log(`translate(${m.x - offset.x}, ${m.y - offset.y})`);
+    }else{
+        //console.log("moving");
+    }
+}
+function evMouseUp(e) {
+    // if (dragging) {
+    //     let nextPos = findNextGridPosition(cursorpt.x, cursorpt.y);
+    //     movingObject.setAttributeNS(null, 'transform', `translate(${nextPos.x}, ${nextPos.y})`);
+        
+    //     movingObject = null;
+    // }else{
+    //     console.log("up");
+    // }
+    // dragging = false;
+    myCirc = myCirc.cloneNode(true);
+    pt.x = e.clientX;
+    pt.y = e.clientY;
+    // The cursor point, translated into svg coordinates
+    cursorpt =  pt.matrixTransform(svg.getScreenCTM().inverse());
+    console.log("(cursorpt.x:" + cursorpt.x + ", cursorpt.y:" + cursorpt.y + ")");
+    let nextPos = findNextGridPosition(cursorpt.x, cursorpt.y);
+    myCirc.setAttributeNS(null, 'cx', nextPos.x);
+    myCirc.setAttributeNS(null, 'cy', nextPos.y);
+    svg.appendChild(myCirc);
+
+}
+
+function oMousePos(elmt, evt) {
+    let ClientRect = elmt.getBoundingClientRect();
+              return { 
+              x: Math.round(evt.clientX - ClientRect.left),
+              y: Math.round(evt.clientY - ClientRect.top)
+    }
+}
 
 /************* just for testing *******************
-let myCric = document.createElementNS(svgns, 'circle');
-myCric.setAttributeNS(null, 'cx', centerOfCenterHex.x);
-myCric.setAttributeNS(null, 'cy', centerOfCenterHex.y);
-myCric.setAttributeNS(null, 'r', 10);
-myCric.setAttributeNS(null, 'fill', "red");
-svg.appendChild(myCric);
 **/
+let myCirc = document.createElementNS(svgns, 'circle');
+//myCirc.setAttributeNS(null, 'cx', centerOfCenterHex.x);
+//myCirc.setAttributeNS(null, 'cy', centerOfCenterHex.y);
+myCirc.setAttributeNS(null, 'cx', SIDE*gridStepsInX*4+SIDE);
+myCirc.setAttributeNS(null, 'cy', SIDE*gridStepsInY*5);
+myCirc.setAttributeNS(null, 'style', 'draggable');
+console.log(`origCircle.x: ${SIDE*gridStepsInX*4+SIDE}, origCircle.y: ${SIDE*gridStepsInY*5}`);
+myCirc.setAttributeNS(null, 'r', 10);
+myCirc.setAttributeNS(null, 'fill', "red");
+myCirc.addEventListener('click', function (event) { evMouseDown(event) });
+//myCirc.addEventListener('mousemove', function (event) { evMouseMove(event) });
+//myCirc.addEventListener('mouseup', function (event) { evMouseUp(event) });
+svg.appendChild(myCirc);
 
 
 /************* functions *********************/
@@ -114,6 +191,10 @@ function createTurtle(color, stepsInX, stepsInY, stepsIn60Deg, invert) {
     turtPoly.setAttributeNS(null, 'points', turtPointsUnitary);
     let { myInvert, myTranslateArbitrary, myRotate } = createArbitraryTransform(stepsInX, stepsInY, stepsIn60Deg, invert);
     turtPoly.setAttributeNS(null, 'transform', `${transCenter} ${myScale} ${myTranslateArbitrary} ${myRotate} ${myInvert}`);
+    //turtPoly.addEventListener('mousedown', function (event) { evMouseDown(event) });
+    //turtPoly.addEventListener('mousemove', function (event) { evMouseMove(event) });
+    //turtPoly.addEventListener('mouseup', function (event) { evMouseUo(event) });
+    
     return turtPoly;
 }
 
@@ -124,7 +205,7 @@ function createArbitraryTransform(stepsInX=0, stepsInY=0, stepsIn60Deg=0, invert
     // stepsInY=stepsInY||0;
     // stepsIn60Deg=stepsIn60Deg||0;
     // invert=invert||1;
-    let myTranslateArbitrary = ` translate(${stepsInX * gridStepsInX}, ${stepsInY * gridStepsIn})`;
+    let myTranslateArbitrary = ` translate(${stepsInX * gridStepsInX}, ${stepsInY * gridStepsInY})`;
     let myRotate = `rotate(${stepsIn60Deg * 60}, 0, 0)`;
     let myInvert = `scale(${invert}, 1)`;
     return { myInvert, myTranslateArbitrary, myRotate };
@@ -244,4 +325,38 @@ function findCenterOfCenterHex() {
         y = yminusOne;
     }
     return {x:x, y:y};
+}
+
+function findNextGridPosition(x, y) {
+    //original pos, top left
+    let nextX = SIDE, prevNextX=0;
+    let nextY = SIDE * sqrt3 / 2, prevNextY=0;
+
+    //iterate until find the closest position in the grid
+    while (true) {
+        if (nextX < x) {
+            prevNextX = nextX;
+            nextX += gridStepsInX*SIDE;
+        }
+        if (nextY < y) {
+            prevNextY = nextY;
+            nextY += gridStepsInY*SIDE;
+        }
+        if (nextX >= x && nextY >= y) {
+            break;
+        }
+    }
+    //decide wheter to go back or forward
+    let diffXLeft = nextX - x;
+    let diffXRight = x - prevNextX;
+    if (diffXLeft > diffXRight) {
+        nextX = prevNextX;
+    }
+    let diffYDown = nextY - y;
+    let diffYUp = y - prevNextY;
+    if (diffYDown > diffYUp) {
+        nextY = prevNextY;
+    }
+    console.log(`nextX: ${nextX}, nextY: ${nextY}`);
+    return {x:nextX, y:nextY};
 }
