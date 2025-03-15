@@ -1,76 +1,101 @@
-const SVG_NS = 'http://www.w3.org/2000/svg';
-const SVG_XLINK = "http://www.w3.org/1999/xlink";
 
+var TransformRequestObj
+var TransList
+var DragTarget=null;
+var Dragging = false;
+var OffsetX = 0;
+var OffsetY = 0;
+//---mouse down over element---
+function startDrag(evt)
+{
+    if(!Dragging) //---prevents dragging conflicts on other draggable elements---
+    {
+        DragTarget = evt.target;
+        //---reference point to its respective viewport--
+        var pnt = DragTarget.ownerSVGElement.createSVGPoint();
+        pnt.x = evt.clientX;
+        pnt.y = evt.clientY;
+        //---elements transformed and/or in different(svg) viewports---
+        var sCTM = DragTarget.getScreenCTM();
+        var Pnt = pnt.matrixTransform(sCTM.inverse());
 
-/*let innerSVG = '<svg height="100" width="100">' + 
-  '<circle cx="50" cy="50" r="40" stroke="black" stroke-width="1" fill="rgba(130,130,130,0.6)">' + 
-'</svg>';*/
+        TransformRequestObj = DragTarget.ownerSVGElement.createSVGTransform()
+        //---attach new or existing transform to element, init its transform list---
+        var myTransListAnim=DragTarget.transform
+        TransList=myTransListAnim.baseVal
 
-let svgdata =  {width:100,height:100}
-let circledata = {cx:50,cy:50,r:40}
-// creating a new SVG element using the data
-let svg = newSVG(svgdata);
-// creating a new circle element using the data and appending it to the svg
-let circle = drawCircle(circledata, svg);
-// the offset between the click point on the SVG and the left upper corner of the SVG
-let offset={}
-// a flag to control the dragging
-let dragging = false;
-// the mouse position
-let m;
-document.getElementById('draw').addEventListener('click', function(){
+        OffsetX = Pnt.x
+        OffsetY = Pnt.y
 
-here.appendChild(svg)});
-
-
-// events
-here.addEventListener("mousedown",(evt)=>{
-  dragging = true;
-  offset = oMousePos(svg, evt);
-})
-
-here.addEventListener("mousemove",(evt)=>{
-  if(dragging){
-   m = oMousePos(here, evt);
-   svg.style.top = (m.y - offset.y)+"px";
-   svg.style.left = (m.x - offset.x)+"px";
-  }
-})
-
-here.addEventListener("mouseup",(evt)=>{
-  dragging = false;
-})
-
-
-function oMousePos(elmt, evt) {
-      let ClientRect = elmt.getBoundingClientRect();
-                return { 
-                x: Math.round(evt.clientX - ClientRect.left),
-                y: Math.round(evt.clientY - ClientRect.top)
-      }
+        Dragging=true;
+     }
 }
+//---mouse move---
+function drag(evt)
+{
+    if(Dragging)
+    {
+        var pnt = DragTarget.ownerSVGElement.createSVGPoint();
+        pnt.x = evt.clientX;
+        pnt.y = evt.clientY;
+        //---elements in different(svg) viewports, and/or transformed ---
+        var sCTM = DragTarget.getScreenCTM();
+        var Pnt = pnt.matrixTransform(sCTM.inverse());
+        Pnt.x -= OffsetX;
+        Pnt.y -= OffsetY;
 
-
-function drawCircle(o, parent) {
-  var circle = document.createElementNS(SVG_NS, 'circle');
-  for (var name in o) {
-    if (o.hasOwnProperty(name)) {
-      circle.setAttributeNS(null, name, o[name]);
+        TransformRequestObj.setTranslate(Pnt.x,Pnt.y)
+        TransList.appendItem(TransformRequestObj)
+        TransList.consolidate()
     }
-  }
-  parent.appendChild(circle);
-  return circle;
+}
+//--mouse up---
+function endDrag()
+{
+    Dragging = false;
 }
 
+document.addEventListener("onload",initTransforms(),false)
+//---onload---
+function initTransforms()
+{
+//---place some transforms on the elements---
 
-function newSVG(o) {
-  let svg = document.createElementNS(SVG_NS, 'svg');
-  for (var name in o) {
-    if (o.hasOwnProperty(name)) {
-      svg.setAttributeNS(null, name, o[name]);
-    }
-  }
-  return svg;
+    //--- transform orange circle---
+    var transformRequestObj=mySVG.createSVGTransform()
+    var animTransformList=orangeCircle.transform
+    var transformList=animTransformList.baseVal
+    //---translate---
+    transformRequestObj.setTranslate(180,-260)
+    transformList.appendItem(transformRequestObj)
+    transformList.consolidate()
+    //----scale---
+    transformRequestObj.setScale(.5,.9)
+    transformList.appendItem(transformRequestObj)
+    transformList.consolidate()
+    //----skewY---
+    transformRequestObj.setSkewY(52)
+    transformList.appendItem(transformRequestObj)
+    transformList.consolidate()
+
+    //--init Transform on myG---
+    var transformRequestObj=mySVG.createSVGTransform()
+    var animTransformList=myG.transform
+    var transformList=animTransformList.baseVal
+    //---translate---
+    transformRequestObj.setTranslate(-50,-80)
+    transformList.appendItem(transformRequestObj)
+    transformList.consolidate()
+    //----skewX---
+    transformRequestObj.setSkewX(15)
+    transformList.appendItem(transformRequestObj)
+    transformList.consolidate()
+    //----skewY---
+    transformRequestObj.setSkewY(20)
+    transformList.appendItem(transformRequestObj)
+    transformList.consolidate()
+    //---rotate---
+    transformRequestObj.setRotate(30,200,200)
+    transformList.appendItem(transformRequestObj)
+    transformList.consolidate()
 }
-
-
