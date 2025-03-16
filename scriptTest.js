@@ -48,6 +48,8 @@ var DragTarget = null;
 var Dragging = false;
 var OffsetX = 0;
 var OffsetY = 0;
+const delta = 0.05;
+let lastPosGrid = {x:0, y:0};
 
 
 function evMouseDown(e) {
@@ -76,33 +78,37 @@ function evMouseDown(e) {
 function evMouseMove(e) {
     if (Dragging) {
         //var pnt = DragTarget.ownerSVGElement.createSVGPoint();
-        var pnt = svg.createSVGPoint();
-        let clientSVGOffset = svg.createSVGPoint();
-        let PntGrid = svg.createSVGPoint();
         // cursor pointer in screen
-        pnt.x = e.clientX;
-        pnt.y = e.clientY;
-        console.log(`client x and y: ${pnt.x} , ${pnt.y}`);
+        const pntClient = svg.createSVGPoint();
+        [pntClient.x, pntClient.y] = [e.clientX, e.clientY];
+//console.log(`client x and y: ${pntClient.x} , ${pntClient.y}`);
+         
         //cusror pointer in svg coordinates
-        var PntSVG = pnt.matrixTransform(svg.getScreenCTM().inverse());
-        clientSVGOffset.x = pnt.x - PntSVG.x;
-        clientSVGOffset.y = pnt.y - PntSVG.y;
-        // grid posiition in screen coordinates (because added offset)
-        let posInGrid = findNextGridPosition(PntSVG.x, PntSVG.y);
-        PntGrid.x = posInGrid.x + clientSVGOffset.x ;
-        PntGrid.y = posInGrid.y + clientSVGOffset.y ;
-//Pnt.x -= OffsetX;
-//Pnt.y -= OffsetY;
-        console.log(`svg x and y: ${PntSVG.x} ,${PntSVG.y}`);
-        console.log(`next grid x and y: ${PntGrid.x} ,${PntGrid.y}`);
-        console.log(`client-svgOffset : ${clientSVGOffset.x} ,${clientSVGOffset.y}`);
+        const pntSVG = pntClient.matrixTransform(svg.getScreenCTM().inverse());
+        let clientSVGOffset = {x:0,y:0};
 
+        // offset between client/screen and svg
+        [clientSVGOffset.x, clientSVGOffset.y] = [pntClient.x - pntSVG.x,  pntClient.y - pntSVG.y];
+        
+        // grid posiition in screen coordinates (because added offset)
+        let posInGrid = findNextGridPosition(pntSVG.x, pntSVG.y);
+        const pntGrid = svg.createSVGPoint();
+        pntGrid.x = posInGrid.x + clientSVGOffset.x ;
+        pntGrid.y = posInGrid.y + clientSVGOffset.y ;
+
+        if (Math.abs(lastPosGrid.x - posInGrid.x) > delta ||
+            Math.abs(lastPosGrid.y - posInGrid.y) > delta) {
+                
         //---elements in different(svg) viewports, and/or transformed ---
-        var Pnt = PntGrid.matrixTransform(DragTarget.getScreenCTM().inverse());        console.log(`will add this transform: ${Pnt.x} ,${Pnt.y}`);
-        TransformRequestObj.setTranslate(Pnt.x, Pnt.y)
+        let pnt = pntGrid.matrixTransform(DragTarget.getScreenCTM().inverse());
+        TransformRequestObj.setTranslate(pnt.x, pnt.y)
         TransList.appendItem(TransformRequestObj)
         TransList.consolidate()
-    }
+        //save last pos to compare next cycle
+        [lastPosGrid.x, lastPosGrid.y] = [posInGrid.x, posInGrid.y];
+    }                
+            }
+
 }
 function evMouseUp(e) {
     if (!Dragging) return;
@@ -379,8 +385,6 @@ function findCenterOfCenterHex() {
 }
 
 function findNextGridPosition(x, y) {
-    
-    console.log(`origX: ${x}, origY: ${y}`);
     //original pos, top left
     let nextX = SIDE, prevNextX = 0;
     let nextY = SIDE * sqrt3 / 2, prevNextY = 0;
@@ -412,6 +416,5 @@ function findNextGridPosition(x, y) {
     if (diffYDown > diffYUp) {
         nextY = prevNextY;
     }
-    console.log(`nextX: ${nextX}, nextY: ${nextY}`);
     return { x: nextX, y: nextY };
 }
