@@ -34,13 +34,13 @@ const transCenter = `translate(${centerOfCenterHex.x}, ${centerOfCenterHex.y})`;
 let myTurt = createTurtle("blue");
 svg.appendChild(myTurt);
 //add another pink turtle
-myTurt = createTurtle(color = "pink", stepsInX = 2, stepsInY = 0, stepsIn60Deg = 1, invert = -1);
+myTurt = createTurtle(color = "pink", stepsInX = 0, stepsInY = 0, stepsIn60Deg = 1, invert = -1);
 svg.appendChild(myTurt);
 
 /******** more testing */
 svg.addEventListener('mouseup', function (event) { evMouseUp(event) });
 svg.addEventListener('mousemove', function (event) { evMouseMove(event) });
-svg.addEventListener('mousedown', function (event) { evMouseDown(event) });
+// svg.addEventListener('mousedown', function (event) { evMouseDown(event) });
 
 var TransformRequestObj;
 var TransList;
@@ -49,14 +49,17 @@ var Dragging = false;
 var OffsetX = 0;
 var OffsetY = 0;
 const delta = 0.05;
-let lastPosGrid = {x:0, y:0};
+let lastPosGrid = { x: 0, y: 0 };
+let wasDragging;
 
 
 function evMouseDown(e) {
+    wasDragging = false;  // Reset the flag on mousedown
+    console.log('mousedown on svg event fired, Dragging:', Dragging);
     if (!Dragging) //---prevents dragging conflicts on other draggable elements---
     {
         DragTarget = e.target;
-        if(DragTarget.id === "background") return;
+        if (DragTarget.id === "background") return;
         //---reference point to its respective viewport--
         let pnt = DragTarget.ownerSVGElement.createSVGPoint();
         pnt.x = e.clientX;
@@ -73,97 +76,51 @@ function evMouseDown(e) {
         OffsetY = Pnt.y
 
         Dragging = true;
+
+        console.log('mousedown on svg event fired, Dragging:', Dragging);
     }
 }
 function evMouseMove(e) {
     if (Dragging) {
+        wasDragging = true;  // Set the flag when dragging occurs
         //var pnt = DragTarget.ownerSVGElement.createSVGPoint();
         // cursor pointer in screen
         const pntClient = svg.createSVGPoint();
         [pntClient.x, pntClient.y] = [e.clientX, e.clientY];
-//console.log(`client x and y: ${pntClient.x} , ${pntClient.y}`);
-         
+        //console.log(`client x and y: ${pntClient.x} , ${pntClient.y}`);
+
         //cusror pointer in svg coordinates
         const pntSVG = pntClient.matrixTransform(svg.getScreenCTM().inverse());
-        let clientSVGOffset = {x:0,y:0};
+        let clientSVGOffset = { x: 0, y: 0 };
 
         // offset between client/screen and svg
-        [clientSVGOffset.x, clientSVGOffset.y] = [pntClient.x - pntSVG.x,  pntClient.y - pntSVG.y];
-        
+        [clientSVGOffset.x, clientSVGOffset.y] = [pntClient.x - pntSVG.x, pntClient.y - pntSVG.y];
+
         // grid posiition in screen coordinates (because added offset)
         let posInGrid = findNextGridPosition(pntSVG.x, pntSVG.y);
         const pntGrid = svg.createSVGPoint();
-        pntGrid.x = posInGrid.x + clientSVGOffset.x ;
-        pntGrid.y = posInGrid.y + clientSVGOffset.y ;
+        pntGrid.x = posInGrid.x + clientSVGOffset.x;
+        pntGrid.y = posInGrid.y + clientSVGOffset.y;
 
         if (Math.abs(lastPosGrid.x - posInGrid.x) > delta ||
             Math.abs(lastPosGrid.y - posInGrid.y) > delta) {
-                
-        //---elements in different(svg) viewports, and/or transformed ---
-        let pnt = pntGrid.matrixTransform(DragTarget.getScreenCTM().inverse());
-        TransformRequestObj.setTranslate(pnt.x, pnt.y)
-        TransList.appendItem(TransformRequestObj)
-        TransList.consolidate()
-        //save last pos to compare next cycle
-        [lastPosGrid.x, lastPosGrid.y] = [posInGrid.x, posInGrid.y];
-    }                
-            }
+
+            //---elements in different(svg) viewports, and/or transformed ---
+            let pnt = pntGrid.matrixTransform(DragTarget.getScreenCTM().inverse());
+            TransformRequestObj.setTranslate(pnt.x, pnt.y)
+            TransList.appendItem(TransformRequestObj)
+            TransList.consolidate()
+            //save last pos to compare next cycle
+            [lastPosGrid.x, lastPosGrid.y] = [posInGrid.x, posInGrid.y];
+        }
+    }
 
 }
 function evMouseUp(e) {
-    if (!Dragging) return;
-
+    console.log('mouseup event on svg fired, Dragging:', Dragging);
     Dragging = false;
-return;
-    let pnt = DragTarget.ownerSVGElement.createSVGPoint();
-    pnt.x = 0;
-    pnt.y = 0;
-        console.log(`pntY: ${pnt.y}`);// pointer on screen
-    let cursorpt = pnt.matrixTransform(svg.getScreenCTM().inverse()); //pointer on svg
-        console.log(`cursorpnY: ${cursorpt.y}`);// pointer on svg --> make this snap to grid
-        console.log(`OffsetY: ${OffsetY}`);// Offset in x
-    //---elements in different(svg) viewports, and/or transformed ---
-    var Pnt = pnt.matrixTransform(DragTarget.getScreenCTM()); //0 of object relative to svg
-    //Pnt.x -= OffsetX;
-    //Pnt.y -= OffsetY;
-        console.log(`PntY 0 of object relative to svg: ${Pnt.y}`);//0 of object relative to svg
-    
-    let posInGrid = findNextGridPosition(Pnt.x, Pnt.y);
-    pnt.x = posInGrid.x;
-    pnt.y = posInGrid.y;
-        console.log(`posInGridY: ${posInGrid.y}`); //
-    Pnt = pnt.matrixTransform(DragTarget.getScreenCTM().inverse());
-    
-        console.log(`after inverse: ${Pnt.y}`); //
-    //TransformRequestObj.setTranslate(Pnt.x, Pnt.y);
-//TODO: get the orig turtle translations and use them instead of append to translist
-    let transSnap = `translate(${pnt.x},${pnt.y}) `;
-    DragTarget.setAttributeNS(null, 'transform', `${transSnap} ${myScale}`);
-    //TransList.appendItem(TransformRequestObj);
-//TODO still see about consolidation
-    //TransList.consolidate();
-    
-    
-    // myCirc = myCirc.cloneNode(true);
-    // pt.x = e.clientX;
-    // pt.y = e.clientY;
-    // // The cursor point, translated into svg coordinates
-    // cursorpt = pt.matrixTransform(svg.getScreenCTM().inverse());
-    // console.log("(cursorpt.x:" + cursorpt.x + ", cursorpt.y:" + cursorpt.y + ")");
-    // let nextPos = findNextGridPosition(cursorpt.x, cursorpt.y);
-    // myCirc.setAttributeNS(null, 'cx', nextPos.x);
-    // myCirc.setAttributeNS(null, 'cy', nextPos.y);
-    // svg.appendChild(myCirc);
-
 }
 
-// function oMousePos(elmt, evt) {
-//     let ClientRect = elmt.getBoundingClientRect();
-//               return { 
-//               x: Math.round(evt.clientX - ClientRect.left),
-//               y: Math.round(evt.clientY - ClientRect.top)
-//     }
-// }
 
 /************* just for testing *******************
 **/
@@ -211,6 +168,7 @@ function createSvg() {
 }
 
 function createTurtle(color, stepsInX, stepsInY, stepsIn60Deg, invert) {
+    let turtPoly = document.createElementNS(svgns, 'polygon');
     // turtle vectors
     let turtVectors =
         [   /* 1  */{ x: 0, y: 0 },
@@ -237,7 +195,6 @@ function createTurtle(color, stepsInX, stepsInY, stepsIn60Deg, invert) {
         turtPointsUnitary += ` ${tempsX},${tempsY}`;
     }
 
-    let turtPoly = document.createElementNS(svgns, 'polygon');
     turtPoly.setAttributeNS(null, 'fill', color);
     turtPoly.setAttributeNS(null, 'fill-opacity', "0.5");
     turtPoly.setAttributeNS(null, 'stroke', "black");
@@ -246,9 +203,49 @@ function createTurtle(color, stepsInX, stepsInY, stepsIn60Deg, invert) {
     turtPoly.setAttributeNS(null, 'points', turtPointsUnitary);
     let { myInvert, myTranslateArbitrary, myRotate } = createArbitraryTransform(stepsInX, stepsInY, stepsIn60Deg, invert);
     turtPoly.setAttributeNS(null, 'transform', `${transCenter} ${myScale} ${myTranslateArbitrary} ${myRotate} ${myInvert}`);
-    //turtPoly.addEventListener('mousedown', function (event) { evMouseDown(event) });
-    //turtPoly.addEventListener('mousemove', function (event) { evMouseMove(event) });
-    //turtPoly.addEventListener('mouseup', function (event) { evMouseUo(event) });
+    turtPoly.transform.baseVal.consolidate();
+    // Add transition CSS
+    //turtPoly.style.transition = 'transform 1s ease';
+
+    let currentRotation = 0;
+    let isDragging = false;
+
+    // Add the event listeners using existing functions
+    turtPoly.addEventListener('mousedown', function (e) {
+        console.log('mousedown on turtle event fired, Dragging:', Dragging);
+        evMouseDown(e);
+    });
+
+
+    // Existing click handler for rotation
+    turtPoly.addEventListener('click', function (e) {
+        console.log('Click event fired, Dragging:', Dragging);
+
+        if (wasDragging) {
+            wasDragging = false;
+            return;
+        }
+
+        const currentTransform = this.getAttribute('transform');
+        console.log('Current transform:', currentTransform);
+
+        if (currentTransform.includes('matrix')) {
+            // If matrix exists, apply rotation before the matrix to preserve scaling
+            this.setAttributeNS(null, 'transform',
+                `${currentTransform} rotate(-60) `);
+            this.transform.baseVal.consolidate();
+
+        } else {
+            // For regular transforms, extract translate and combine with rotation and scale
+            const translateMatch = currentTransform.match(/translate\([^)]+\)/);
+            const translate = translateMatch ? translateMatch[0] : transCenter;
+
+            this.setAttributeNS(null, 'transform',
+                `${translate} rotate(60) ${myScale}`);
+        }
+
+        console.log('New transform:', this.getAttribute('transform'));
+    });
 
     return turtPoly;
 }
@@ -274,7 +271,7 @@ function createRectforPattern() {
     myRect.setAttributeNS(null, 'y', "0");
     myRect.setAttributeNS(null, 'stroke', "black");
     myRect.setAttributeNS(null, 'fill', "url(#hexes)");
-    myRect.setAttributeNS(null, 'id', 'background'); 
+    myRect.setAttributeNS(null, 'id', 'background');
     svg.appendChild(myRect);
     return myRect;
 }
