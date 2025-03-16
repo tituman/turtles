@@ -3,7 +3,7 @@ const svgns = "http://www.w3.org/2000/svg";
 
 
 /******  preparations  *******/
-const SIDE = 40;//96;
+const SIDE = 20;//96;
 const sizeOfSVGinX = 900;
 const sizeOfSVGinY = 900;
 

@@ -119,7 +119,7 @@ function styleTurtleButton(button) {
 window.colorControls = {
     setupColorControls,
     getSelectedColor: () => selectedColor
-}; 
+};
 
 // Call this after SVG creation
 const exportFunctions = setupExportFunctions();
@@ -172,7 +172,7 @@ function setupExportFunctions() {
     }
 
     // Add keyboard shortcuts
-    document.addEventListener('keydown', function(e) {
+    document.addEventListener('keydown', function (e) {
         // Ctrl/Cmd + S to save
         if ((e.ctrlKey || e.metaKey) && e.key === 's') {
             e.preventDefault();
