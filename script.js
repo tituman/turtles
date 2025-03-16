@@ -1,169 +1,495 @@
 // adapted from http://stackoverflow.com/questions/12786797/how-to-draw-rectangles-dynamically-in-svg
-var svgns = "http://www.w3.org/2000/svg";
-
-/******  preparations and constants  *******/
-let SIDE = 40;//96;
-let x;
-let y;
-let sizeOfGrid = 11;
-let sqrt3 = Math.sqrt(3);
-let myScale = `scale(${SIDE}, ${SIDE})`; //scale the whole svg to SIDE
-let stepsInXThirds = 1 / sqrt3; // from 1 hex to the next in X direction, but can be divided by 3
-let stepsInY = 2; // from 1 hex to the next in Y direction
-[x,y] = makeGridAndReturnMiddle();
-
-//create the turtle
-let turtPointsUnitary = '', turtPointsScaled = '';
-createTurtle();
-
-//general svg stuff like scales and transforms
-
-let myTranslateCenter = `translate(${x}, ${y})`; //puts the turtle in the center of the grid snapped to a hexagon
-//let myTransform = `translate(${x}, ${y+SIDE*2})`; //puts the turtle one lower than the center of the grid
-let myTranslateArbitrary = ` translate(${(2*3)*stepsInXThirds}, ${-0*stepsInY})`; 
-let myRotate = `rotate(${-1*60}, 0, 0)`;
+const svgns = "http://www.w3.org/2000/svg";
 
 
+/******  preparations  *******/
+const SIDE = 20;//96;
+const sizeOfSVGinX = 900;
+const sizeOfSVGinY = 900;
 
-/******  turtle creations  *******/
+/******  constants  *******/
+const sqrt3 = Math.sqrt(3);
+const offsetfromZero = `translate(${1}, ${sqrt3 / 2})`;
+const myScale = `scale(${SIDE}, ${SIDE})`; //scale the whole svg to SIDE
+const gridStepsInX = 1.5; // from 1 hex to the next in X direction, steps always in 1.5
+const gridStepsInY = sqrt3 / 2; // from 1 hex to the next in Y direction
 
-//create the turtle from unitary vector and scaled to SIDE, turtle is red and has been tested and rotated a lot
-turtPolygon = document.createElementNS(svgns, 'polygon');
-turtPolygon.setAttributeNS(null, 'fill', "pink");
-turtPolygon.setAttributeNS(null, 'fill-opacity', "0.5");
-turtPolygon.setAttributeNS(null, 'stroke', "black");
-turtPolygon.setAttributeNS(null, 'stroke-width', "2");
-turtPolygon.setAttributeNS(null, 'vector-effect', "non-scaling-stroke");
-turtPolygon.setAttributeNS(null, 'points', turtPointsUnitary);
-turtPolygon.setAttributeNS(null, 'transform', `${myScale} ${myTranslateCenter} ${myTranslateArbitrary} scale(1,1)  ${myRotate}`);  
-document.getElementById('svgTurt').appendChild(turtPolygon);
-console.log(turtPolygon);
+// Add after other constants
+// const TURTLE_SPAWN_AREA = {
+//     x: SIDE,
+//     y: SIDE,
+//     width: SIDE * 3,
+//     height: SIDE * 3
+// };
 
-//create turtle from ~scaled~ unitary vector, turtle is at middle and blue
-turtPoly = document.createElementNS(svgns, 'polygon');
-turtPoly.setAttributeNS(null, 'fill', "blue");
-turtPoly.setAttributeNS(null, 'fill-opacity', "0.5");
-turtPoly.setAttributeNS(null, 'stroke', "black");
-turtPoly.setAttributeNS(null, 'stroke-width', "2");
-turtPoly.setAttributeNS(null, 'vector-effect', "non-scaling-stroke");
-turtPoly.setAttributeNS(null, 'transform', `${myScale} ${myTranslateCenter}`);
-turtPoly.setAttributeNS(null, 'points', turtPointsUnitary);
-document.getElementById('svgTurt').appendChild(turtPoly);
-console.log(turtPoly);
+//put SVG in the document
+const svg = createSvg();
+// add background pattern to document
+const patt = createdefinesAndPattern();
+//create hexes and kites for the pattern
+addKitesToPattern();
+addHexesToPattern();
+//make a shape with the pattern the size of the svg
+const rectBackground = createRectforPattern();
 
-
-/*
-//mirror and move up 2*SIDE
-turtPoly = turtPoly.cloneNode(true);
-//turtPoly.setAttributeNS(null, 'transform', `scale(-1, 1) translate(-${x * 2}, -${SIDE * 2})`);
-turtPoly.setAttributeNS(null, 'transform', `translate(0, -${SIDE * 2})`);
-turtPoly.setAttributeNS(null, 'fill-opacity', "0.3");
-document.getElementById('svgTurt').appendChild(turtPoly);
-console.log(turtPoly);
-
-//not mirror rotate and move up 2*SIDE
-turtPoly = turtPoly.cloneNode(true);
-turtPoly.setAttributeNS(null, 'fill-opacity', "0.5");
-turtPoly.setAttributeNS(null, 'transform', `rotate(60, ${x}, ${y}) translate(0, -${SIDE * 2})`);
-document.getElementById('svgTurt').appendChild(turtPoly);
-console.log(turtPoly);
-*/
-/* original implementation of turtle based on hat
-/* 1  turtPointsScaled = `${x},${y} `;
-/* 2  turtPointsScaled += ` ${x + SIDE * sqrt3 / 2},${y + SIDE / 2}`;
-/* 3  turtPointsScaled += ` ${x + SIDE * 2 / sqrt3},${y}`;
-/* 4  turtPointsScaled += ` ${x + SIDE * sqrt3},${y}`;
-/* 5  turtPointsScaled += ` ${x + SIDE * sqrt3},${y - SIDE}`;
-/* 6  turtPointsScaled += ` ${x + SIDE * sqrt3 / 2},${y - 3 / 2 * SIDE}`;
-/* 7  turtPointsScaled += ` ${x},${y - 2 * SIDE}`;
-/* 8  turtPointsScaled += ` ${x - SIDE * sqrt3 / 2},${y - 3 / 2 * SIDE}`;
-/* 9  turtPointsScaled += ` ${x - SIDE * 2 / sqrt3},${y - SIDE * 2}`;
-/* 10 turtPointsScaled += ` ${x - SIDE * (3 / sqrt3)},${y - SIDE * 2}`;
-/* 11 turtPointsScaled += ` ${x - SIDE * (3 / sqrt3)},${y - SIDE * 1}`;
-/* 12 turtPointsScaled += ` ${x - SIDE * sqrt3 / 2},${y - SIDE / 2}`;
-/* 13 turtPointsScaled += ` ${x - SIDE * 2 / sqrt3},${y}`;
-/* 14 turtPointsScaled += ` ${x - SIDE * sqrt3 / 2},${y + SIDE / 2}`;
-
-console.log(turtPointsScaled);
-*/
+// find center of center hex of pattern
+const centerOfCenterHex = findCenterOfCenterHex();
+const transCenter = `translate(${centerOfCenterHex.x}, ${centerOfCenterHex.y})`;
+// setupTemplateTurtle();
+// setupTemplateTurtle(true);
 
 
-function createTurtle() {
+//add one turtle
+// //syntax: createTurtle(color, stepsInX, stepsInY, stepsIn60Deg, invert)
+let myTurt = createTurtle("blue");
+svg.appendChild(myTurt);
+//add another pink turtle
+myTurt = createTurtle(color = "pink", stepsInX = 0, stepsInY = 0, stepsIn60Deg = 1, invert = true);
+svg.appendChild(myTurt);
+
+/******** more testing */
+svg.addEventListener('mouseup', function (event) { evMouseUp(event) });
+svg.addEventListener('mousemove', function (event) { evMouseMove(event) });
+// svg.addEventListener('mousedown', function (event) { evMouseDown(event) });
+
+var TransformRequestObj;
+var TransList;
+var DragTarget = null;
+var Dragging = false;
+var OffsetX = 0;
+var OffsetY = 0;
+const delta = 0.05;
+let lastPosGrid = { x: 0, y: 0 };
+let wasDragging;
+
+
+function evMouseDown(e) {
+    wasDragging = false;  // Reset the flag on mousedown
+    console.log('mousedown on svg event fired, Dragging:', Dragging);
+    if (!Dragging) //---prevents dragging conflicts on other draggable elements---
+    {
+        DragTarget = e.target;
+        if (DragTarget.id === "background") return;
+        //---reference point to its respective viewport--
+        let pnt = DragTarget.ownerSVGElement.createSVGPoint();
+        pnt.x = e.clientX;
+        pnt.y = e.clientY;
+        //---elements transformed and/or in different(svg) viewports---
+        let sCTM = DragTarget.getScreenCTM();
+        let Pnt = pnt.matrixTransform(sCTM.inverse());
+
+        TransformRequestObj = DragTarget.ownerSVGElement.createSVGTransform();
+        //---attach new or existing transform to element, init its transform list---
+        TransList = DragTarget.transform.baseVal;
+
+        OffsetX = Pnt.x
+        OffsetY = Pnt.y
+
+        Dragging = true;
+
+        console.log('mousedown on svg event fired, Dragging:', Dragging);
+    }
+}
+function evMouseMove(e) {
+    if (Dragging) {
+        wasDragging = true;  // Set the flag when dragging occurs
+        //var pnt = DragTarget.ownerSVGElement.createSVGPoint();
+        // cursor pointer in screen
+        const pntClient = svg.createSVGPoint();
+        [pntClient.x, pntClient.y] = [e.clientX, e.clientY];
+        //console.log(`client x and y: ${pntClient.x} , ${pntClient.y}`);
+
+        //cusror pointer in svg coordinates
+        const pntSVG = pntClient.matrixTransform(svg.getScreenCTM().inverse());
+        let clientSVGOffset = { x: 0, y: 0 };
+
+        // offset between client/screen and svg
+        [clientSVGOffset.x, clientSVGOffset.y] = [pntClient.x - pntSVG.x, pntClient.y - pntSVG.y];
+
+        // grid posiition in screen coordinates (because added offset)
+        let posInGrid = findNextGridPosition(pntSVG.x, pntSVG.y);
+        const pntGrid = svg.createSVGPoint();
+        pntGrid.x = posInGrid.x + clientSVGOffset.x;
+        pntGrid.y = posInGrid.y + clientSVGOffset.y;
+
+        if (Math.abs(lastPosGrid.x - posInGrid.x) > delta ||
+            Math.abs(lastPosGrid.y - posInGrid.y) > delta) {
+
+            //---elements in different(svg) viewports, and/or transformed ---
+            let pnt = pntGrid.matrixTransform(DragTarget.getScreenCTM().inverse());
+            TransformRequestObj.setTranslate(pnt.x, pnt.y)
+            TransList.appendItem(TransformRequestObj)
+            TransList.consolidate()
+            //save last pos to compare next cycle
+            [lastPosGrid.x, lastPosGrid.y] = [posInGrid.x, posInGrid.y];
+        }
+    }
+
+}
+function evMouseUp(e) {
+    console.log('mouseup event on svg fired, Dragging:', Dragging);
+    Dragging = false;
+}
+
+
+/************* just for testing *******************
+let myCirc = document.createElementNS(svgns, 'circle');
+//myCirc.setAttributeNS(null, 'cx', centerOfCenterHex.x);
+//myCirc.setAttributeNS(null, 'cy', centerOfCenterHex.y);
+myCirc.setAttributeNS(null, 'cx', 0);
+myCirc.setAttributeNS(null, 'cy', 0);
+//myCirc.setAttributeNS(null, 'style', 'draggable');
+console.log(`origCircle.x: ${SIDE * gridStepsInX * 4 + SIDE}, origCircle.y: ${SIDE * gridStepsInY * 5}`);
+myCirc.setAttributeNS(null, 'r', 0.5);
+myCirc.setAttributeNS(null, 'transform', `translate(${SIDE * gridStepsInX * 4 + SIDE},${SIDE * gridStepsInY * 5}) ${myScale}`);
+console.log(`orig translate of circle(${SIDE * gridStepsInX * 4 + SIDE},${SIDE * gridStepsInY * 5})`);
+myCirc.setAttributeNS(null, 'fill', "red");
+//myCirc.addEventListener('click', function (event) { evMouseDown(event) });
+//myCirc.addEventListener('mousemove', function (event) { evMouseMove(event) });
+//myCirc.addEventListener('mouseup', function (event) { evMouseUp(event) });
+svg.appendChild(myCirc);
+
+**/
+
+/************* functions *********************/
+
+function createdefinesAndPattern() {
+    let patt = document.createElementNS(svgns, 'pattern');
+    patt.setAttributeNS(null, 'id', 'hexes'); // useful for filling with the pattern later
+    patt.setAttributeNS(null, 'patternUnits', 'userSpaceOnUse');
+    patt.setAttributeNS(null, 'width', `${3 * SIDE}`);
+    patt.setAttributeNS(null, 'height', `${sqrt3 * SIDE}`);
+    let defs = document.createElementNS(svgns, 'defs');
+    svg.appendChild(defs);
+    defs.appendChild(patt);
+    return patt;
+}
+
+function createSvg() {
+    let svg = document.createElementNS(svgns, 'svg');
+    svg.style.left = '0';
+    svg.style.top = '0';
+    svg.style.width = sizeOfSVGinX;
+    svg.style.height = sizeOfSVGinY;
+    svg.style.backgroundColor = "#999999";
+    //svg.setAttributeNS(null, 'id', 'svgTest');
+    document.getElementById("theDrawing").appendChild(svg);
+    return svg;
+}
+
+// Define the rotation handler function globally
+function handleTurtleRotation(e) {
+    console.log('Click event fired, Dragging:', Dragging);
+
+    if (wasDragging) {
+        wasDragging = false;
+        return;
+    }
+
+    const currentTransform = e.target.getAttribute('transform');
+    console.log('Current transform:', currentTransform);
+
+    if (currentTransform.includes('matrix')) {
+        // If matrix exists, apply rotation before the matrix to preserve scaling
+        e.target.setAttributeNS(null, 'transform',
+            `${currentTransform} rotate(-60) `);
+        e.target.transform.baseVal.consolidate();
+    } else {
+        // For regular transforms, extract translate and combine with rotation and scale
+        const translateMatch = currentTransform.match(/translate\([^)]+\)/);
+        const translate = translateMatch ? translateMatch[0] : transCenter;
+
+        e.target.setAttributeNS(null, 'transform',
+            `${translate} rotate(60) ${myScale}`);
+    }
+
+    console.log('New transform:', e.target.getAttribute('transform'));
+}
+
+function createTurtle(color, stepsInX, stepsInY, stepsIn60Deg, invert) {
+    let turtPoly = document.createElementNS(svgns, 'polygon');
     // turtle vectors
-    let turtVectors = [
-    /* 1  */{x: 0, y: 0},
-    /* 2  */{x: sqrt3 / 2, y: 1 / 2},
-    /* 3  */{x: sqrt3 / 6, y: -1 / 2},
-    /* 4  */{x: 1 / sqrt3, y: 0},
-    /* 5  */{x: 0, y: -1},
-    /* 6  */{x: -sqrt3 / 2, y: -1/2},
-    /* 7  */{x: -sqrt3 / 2, y: -1/2},
-    /* 8  */{x: -sqrt3 / 2, y: 1/2},
-    /* 9  */{x: -sqrt3 / 6, y: -1 / 2},
-    /* 10 */{x: -1 / sqrt3, y: 0},
-    /* 11 */{x: 0, y: 1},
-    /* 12 */{x: sqrt3 / 2, y: 1 / 2},
-    /* 13 */{x: -sqrt3 / 6, y: 1 / 2},
-    /* 14 */{x: sqrt3 / 6, y: 1 / 2}
-    ];
+    let turtVectors =
+        [   /* 1  */{ x: 0, y: 0 },
+        /* 2  */{ x: 3 / 4, y: sqrt3 / 4 },
+        /* 3  */{ x: 1 / 4, y: -sqrt3 / 4 },
+        /* 4  */{ x: 1 / 2, y: 0 },
+        /* 5  */{ x: 0, y: -sqrt3 / 2 },
+        /* 6  */{ x: -3 / 4, y: -sqrt3 / 4 },
+        /* 7  */{ x: -3 / 4, y: -sqrt3 / 4 },
+        /* 8  */{ x: -3 / 4, y: sqrt3 / 4 },
+        /* 9  */{ x: -1 / 4, y: -sqrt3 / 4 },
+        /* 10 */{ x: -1 / 2, y: 0 },
+        /* 11 */{ x: 0, y: sqrt3 / 2 },
+        /* 12 */{ x: 3 / 4, y: sqrt3 / 4 },
+        /* 13 */{ x: -1 / 4, y: sqrt3 / 4 },
+        /* 14 */{ x: 1 / 4, y: sqrt3 / 4 }
+        ];
 
-    // add the turtle vectors to get the full path of the turtle
-    let tempX = 0, tempY = 0, tempsX = 0, tempsY = 0;
+    // add the turtle vectors to get the full path of the turtle polygon
+    let tempsX = 0, tempsY = 0, turtPointsUnitary = "";
     for (let i = 0; i < turtVectors.length; i++) {
-        //multiply by SIDE to scale the vectors
-        tempX += SIDE * turtVectors[i].x;
-        tempY += SIDE * turtVectors[i].y;
-        turtPointsScaled += ` ${tempX},${tempY}`;
-        // dont multiply by SIDE, instead scale later on the svg
         tempsX += turtVectors[i].x;
         tempsY += turtVectors[i].y;
         turtPointsUnitary += ` ${tempsX},${tempsY}`;
+    }
 
+    turtPoly.setAttributeNS(null, 'fill', color);
+    turtPoly.setAttributeNS(null, 'fill-opacity', "0.5");
+    turtPoly.setAttributeNS(null, 'stroke', "black");
+    turtPoly.setAttributeNS(null, 'stroke-width', "2");
+    turtPoly.setAttributeNS(null, 'vector-effect', "non-scaling-stroke");
+    turtPoly.setAttributeNS(null, 'points', turtPointsUnitary);
+    let { myInvert, myTranslateArbitrary, myRotate } = createArbitraryTransform(stepsInX, stepsInY, stepsIn60Deg, invert);
+    turtPoly.setAttributeNS(null, 'transform', `${transCenter} ${myScale} ${myTranslateArbitrary} ${myRotate} ${myInvert}`);
+    turtPoly.transform.baseVal.consolidate();
+    // Add transition CSS
+    //turtPoly.style.transition = 'transform 1s ease';
+
+    let currentRotation = 0;
+    let isDragging = false;
+
+    // Add the event listeners using existing functions
+    turtPoly.addEventListener('mousedown', evMouseDown);
+    // {
+    //     console.log('mousedown on turtle event fired, Dragging:', Dragging);
+    //     evMouseDown(e);
+    // });
+
+
+    // Existing click handler for rotation
+    turtPoly.addEventListener('click', handleTurtleRotation);
+
+    return turtPoly;
+}
+
+
+
+function createArbitraryTransform(stepsInX = 0, stepsInY = 0, stepsIn60Deg = 0, invert = false) {
+    // stepsInX=stepsInX||0;
+    // stepsInY=stepsInY||0;
+    // stepsIn60Deg=stepsIn60Deg||0;
+    // invert=invert||1;
+    let myTranslateArbitrary = ` translate(${stepsInX * gridStepsInX}, ${stepsInY * gridStepsInY})`;
+    let myRotate = `rotate(${stepsIn60Deg * 60}, 0, 0)`;
+    
+    let myInvert = `scale(1, 1)`;
+    if (invert) myInvert = `scale(-1, 1)`;
+    console.log("myInvert: ", myInvert);
+    return { myInvert, myTranslateArbitrary, myRotate };
+}
+
+function createRectforPattern() {
+    myRect = document.createElementNS(svgns, 'rect');
+    myRect.setAttributeNS(null, 'width', sizeOfSVGinX);
+    myRect.setAttributeNS(null, 'height', sizeOfSVGinY);
+    myRect.setAttributeNS(null, 'x', "0");
+    myRect.setAttributeNS(null, 'y', "0");
+    myRect.setAttributeNS(null, 'stroke', "black");
+    myRect.setAttributeNS(null, 'fill', "url(#hexes)");
+    myRect.setAttributeNS(null, 'id', 'background');
+    svg.appendChild(myRect);
+    return myRect;
+}
+
+function addHexesToPattern() {
+    let myHexPoints = "";
+    //rotate around a circle, marking its six points to create a hexagon
+    for (let i = 0; i < 6; i++) {
+        myHexPoints += `${Math.cos(i * Math.PI / 3)}, ${Math.sin(i * Math.PI / 3)} `;
+    }
+
+    // main hexagon
+    let myHex = document.createElementNS(svgns, 'polygon');
+    myHex.setAttributeNS(null, 'points', myHexPoints);
+    myHex.setAttributeNS(null, 'fill', "none");
+    myHex.setAttributeNS(null, 'stroke', "black");
+    myHex.setAttributeNS(null, 'stroke-width', "1");
+    myHex.setAttributeNS(null, 'vector-effect', "non-scaling-stroke");
+    myHex.setAttributeNS(null, 'transform', `${myScale} ${offsetfromZero} `);
+    patt.appendChild(myHex);
+
+    // hexagon to the right and lower down
+    let myTrasnformHex2 = `translate(${1.5}, ${sqrt3 / 2})`;
+    myHex = myHex.cloneNode(true);
+    myHex.setAttributeNS(null, 'stroke', "black");
+    myHex.setAttributeNS(null, 'transform', `${myScale} ${offsetfromZero} ${myTrasnformHex2} `);
+    patt.appendChild(myHex);
+}
+
+function addKitesToPattern() {
+    let myPoints = `\
+    ${0},${0} \
+    ${3 / 4},${sqrt3 / 4} \
+    ${1},${0} \
+    ${3 / 4},${-sqrt3 / 4}`;
+
+    for (let theta = 0; theta < 360; theta += 60) {
+        let myRotate = `rotate(${theta}, ${0}, ${0})`;
+
+        //create center kite
+        let myPoly = document.createElementNS(svgns, 'polygon');
+        myPoly.setAttributeNS(null, 'fill', "none");
+        myPoly.setAttributeNS(null, 'stroke', "purple");
+        myPoly.setAttributeNS(null, 'stroke-width', "0.5");
+        myPoly.setAttributeNS(null, 'vector-effect', "non-scaling-stroke");
+        myPoly.setAttributeNS(null, 'points', myPoints);
+        myPoly.setAttributeNS(null, 'transform', `${myScale} ${offsetfromZero} ${myRotate} `);
+        svg.appendChild(myPoly);
+        patt.appendChild(myPoly);
+
+        //create the other 4 kites around the center kite
+        myPoly = myPoly.cloneNode(true);
+        myPoly.setAttributeNS(null, 'stroke', "green");
+        myPoly.setAttributeNS(null, 'transform', `${myScale} ${offsetfromZero}  translate(${1.5}, ${sqrt3 / 2}) ${myRotate}`);
+        svg.appendChild(myPoly);
+        patt.appendChild(myPoly);
+
+        myPoly = myPoly.cloneNode(true);
+        myPoly.setAttributeNS(null, 'stroke', "green");
+        myPoly.setAttributeNS(null, 'transform', `${myScale} ${offsetfromZero}  translate(${-1.5}, ${sqrt3 / 2}) ${myRotate}`);
+        svg.appendChild(myPoly);
+        patt.appendChild(myPoly);
+
+        myPoly = myPoly.cloneNode(true);
+        myPoly.setAttributeNS(null, 'stroke', "green");
+        myPoly.setAttributeNS(null, 'transform', `${myScale} ${offsetfromZero}  translate(${1.5}, ${-sqrt3 / 2}) ${myRotate}`);
+        svg.appendChild(myPoly);
+        patt.appendChild(myPoly);
+
+        myPoly = myPoly.cloneNode(true);
+        myPoly.setAttributeNS(null, 'stroke', "green");
+        myPoly.setAttributeNS(null, 'transform', `${myScale} ${offsetfromZero}  translate(${-1.5}, ${-sqrt3 / 2}) ${myRotate}`);
+        svg.appendChild(myPoly);
+        patt.appendChild(myPoly);
 
     }
 }
 
-function makeGridAndReturnMiddle() {
-    // make grid
-    let cos30 = Math.cos(Math.PI / 6); // sqrt3/2
-    let tan30 = Math.tan(Math.PI / 6); // 1/sqrt3
-    let middlePoints = [0,0];
+function findCenterOfCenterHex() {
 
-    for (let i = 0; i <= sizeOfGrid; i++) {
-        for (let j = 0; j <= sizeOfGrid; j++) {
-            let x =  i * 1 * sqrt3 -(1/sqrt3);    //-(SIDE/sqrt3): to make the first hexagon align to the 0 of the grid 
-            let y = (2*j + i%2) * 1;                 // each hexagon is 2*SIDE tall, and alternatively shifted by i*SIDE or not
-            if (x < 0 || x > 800 || y < 0 || y > 800) continue
-            //make a "kite" shape: the basic shape of the turtle and hexagon. one sixth of a hexagon
-            let myPoints = `\
-${x},${y} \
-${x + 1 * sqrt3 / 2},${y + 1 / 2} \
-${x + 1 * 2 / sqrt3},\
-${y} ${x + 1 * sqrt3 / 2},${y - 1 / 2}`;
+    let midSizeX = sizeOfSVGinX / 2;
+    let x = 0;
+    let xminusOne = 0;
+    //SIDE is offset from 0,0; 3*SIDE is the step in x direction
+    for (x = SIDE + (3 * SIDE); x < midSizeX; x = x + (3 * SIDE)) xminusOne = x;
+    //x is now the next possible center after center of svg, on the right side (because of the last increment in the for loop)
+    //now lets find if the one before, on the left, was closer to the center
+    let diffRight = x - midSizeX;
+    let diffLeft = midSizeX - xminusOne;
+    if (diffRight > diffLeft) {
+        //the left side, xminusOne, is the closest to the center
+        x = xminusOne;
+    }
 
-            
-            console.log(myPoints);
-
-            //find the middle of the grid
-            if (i == ~~(sizeOfGrid/2) && j == ~~(sizeOfGrid/2)) { //~~ means to make integer division (!)
-                console.log(`MIDDLE pos from grid: ${x} ${y}`);
-                middlePoints = [x, y];
-            }
-            // rotate 60 degrees 6 times
-            for (let theta = 0; theta < 360; theta += 60) {
-
-                let myRotate = `rotate(${theta}, ${x}, ${y})`;
-                let myPoly = document.createElementNS(svgns, 'polygon');
-                myPoly.setAttributeNS(null, 'fill', "gray");
-                myPoly.setAttributeNS(null, 'stroke', "purple");
-                myPoly.setAttributeNS(null, 'vector-effect', "non-scaling-stroke");
-                myPoly.setAttributeNS(null, 'points', myPoints);
-                myPoly.setAttributeNS(null, 'transform', ` ${myScale} ${myRotate}`);
-                document.getElementById('svgTurt').appendChild(myPoly);
-                console.log(myPoly);
-            }
-
-        }
-    } 
-    return middlePoints;   
+    //same for y
+    let midSizeY = sizeOfSVGinY / 2;
+    let y = 0;
+    let yminusOne = 0;
+    //SIDE*sqrt3/2 is offset from 0,0; sqrt3*SIDE is the step in y direction
+    for (y = SIDE * sqrt3 / 2; y < midSizeY; y = y + (sqrt3 * SIDE)) yminusOne = y;
+    let diffDown = y - midSizeY;
+    let diffUp = midSizeY - yminusOne;
+    if (diffDown > diffUp) {
+        //the upper side, yminusOne is the closest to the center
+        y = yminusOne;
+    }
+    return { x: x, y: y };
 }
+
+function findNextGridPosition(x, y) {
+    //original pos, top left
+    let nextX = SIDE, prevNextX = 0;
+    let nextY = SIDE * sqrt3 / 2, prevNextY = 0;
+
+    //console.log(`SIDE: ${SIDE}, origY: ${y}`);
+    //console.log(`nextX: ${nextX}, nextY: ${nextY}`);
+    //iterate until find the closest position in the grid
+    while (true) {
+        if (nextX < x) {
+            prevNextX = nextX;
+            nextX += gridStepsInX * SIDE;
+        }
+        if (nextY < y) {
+            prevNextY = nextY;
+            nextY += gridStepsInY * SIDE;
+        }
+        if (nextX >= x && nextY >= y) {
+            break;
+        }
+    }
+    //decide wheter to go back or forward
+    let diffXLeft = nextX - x;
+    let diffXRight = x - prevNextX;
+    if (diffXLeft > diffXRight) {
+        nextX = prevNextX;
+    }
+    let diffYDown = nextY - y;
+    let diffYUp = y - prevNextY;
+    if (diffYDown > diffYUp) {
+        nextY = prevNextY;
+    }
+    return { x: nextX, y: nextY };
+}
+
+// Define the template turtle setup function
+function setupTemplateTurtle(inverted) {
+    const templateTurtle = createTurtle("black", 0, 0, 0);
+    templateTurtle.setAttributeNS(null, 'transform', 
+        `${myScale} ${offsetfromZero} translate(${1*gridStepsInX}, ${2*gridStepsInY})`);
+    if (inverted) {
+        templateTurtle.setAttributeNS(null, 'transform', 
+            `${myScale} ${offsetfromZero} translate(${4*gridStepsInX}, ${2*gridStepsInY}) scale(-1, 1)`);
+    } 
+    templateTurtle.setAttributeNS(null, 'fill-opacity', "1");
+    templateTurtle.removeEventListener('click', handleTurtleRotation);
+    templateTurtle.removeEventListener('mousedown', evMouseDown);
+
+    templateTurtle.addEventListener('click', function(e) {
+        // Use selected color instead of random color
+        const color = window.colorControls.getSelectedColor();
+        const newTurtle = createTurtle(color, 0, 0, 0, inverted);
+        svg.appendChild(newTurtle);
+        console.log('click on template, color:', color);
+    });
+    svg.appendChild(templateTurtle);
+    return templateTurtle;
+}
+
+// // Create clickable spawn area
+// const spawnArea = document.createElementNS(svgns, 'rect');
+// spawnArea.setAttributeNS(null, 'x', TURTLE_SPAWN_AREA.x);
+// spawnArea.setAttributeNS(null, 'y', TURTLE_SPAWN_AREA.y);
+// spawnArea.setAttributeNS(null, 'width', TURTLE_SPAWN_AREA.width);
+// spawnArea.setAttributeNS(null, 'height', TURTLE_SPAWN_AREA.height);
+// spawnArea.setAttributeNS(null, 'fill', 'transparent');
+// spawnArea.setAttributeNS(null, 'stroke', 'black');
+// spawnArea.setAttributeNS(null, 'stroke-width', '1');
+// spawnArea.setAttributeNS(null, 'cursor', 'pointer');
+
+
+
+//svg.appendChild(spawnArea);
+
+
+
+
+
+// After SVG creation
+//setupSelection();
+window.colorControls.setupColorControls();
+//const templateTurtle = setupTemplateTurtle();
+
+// function setupSelection() {
+//     selection = document.createElementNS("http://www.w3.org/2000/svg", "rect");
+//     selection.setAttributeNS(null, 'id', 'selectionRect');
+//     selection.setAttributeNS(null, 'width', '0');
+//     selection.setAttributeNS(null, 'height', '0');
+//     selection.setAttributeNS(null, 'stroke', 'blue');
+//     selection.setAttributeNS(null, 'stroke-width', '1');
+//     selection.setAttributeNS(null, 'fill', 'none');
+//     selection.style.pointerEvents = 'none';
+//     selection.style.display = 'none';
+    
+//     svg.appendChild(selection);
+// }
