@@ -3,7 +3,7 @@ const svgns = "http://www.w3.org/2000/svg";
 
 
 /******  preparations  *******/
-const SIDE = 40;//96;
+const SIDE = 50;//96;
 const sizeOfSVGinX = 900;
 const sizeOfSVGinY = 900;
 
@@ -13,6 +13,14 @@ const offsetfromZero = `translate(${1}, ${sqrt3 / 2})`;
 const myScale = `scale(${SIDE}, ${SIDE})`; //scale the whole svg to SIDE
 const gridStepsInX = 1.5; // from 1 hex to the next in X direction, steps always in 1.5
 const gridStepsInY = sqrt3 / 2; // from 1 hex to the next in Y direction
+
+// Add after other constants
+const TURTLE_SPAWN_AREA = {
+    x: SIDE,
+    y: SIDE,
+    width: SIDE * 3,
+    height: SIDE * 3
+};
 
 //put SVG in the document
 const svg = createSvg();
@@ -415,3 +423,32 @@ function findNextGridPosition(x, y) {
     }
     return { x: nextX, y: nextY };
 }
+
+// Add after SVG creation but before other elements
+// Create template turtle (transparent)
+const templateTurtle = createTurtle("black");
+templateTurtle.setAttributeNS(null, 'transform', 
+    `${myScale} ${offsetfromZero} translate(${1*gridStepsInX}, ${2*gridStepsInY})`);
+templateTurtle.setAttributeNS(null, 'fill-opacity', "1");
+templateTurtle.addEventListener('click', function(e) {
+    const randomColor = '#' + Math.floor(Math.random()*16777215).toString(16);
+    svg.appendChild(createTurtle(randomColor));
+    console.log('click on template');
+    e.stopPropagation();
+});
+svg.appendChild(templateTurtle);
+
+// Create clickable spawn area
+const spawnArea = document.createElementNS(svgns, 'rect');
+spawnArea.setAttributeNS(null, 'x', TURTLE_SPAWN_AREA.x);
+spawnArea.setAttributeNS(null, 'y', TURTLE_SPAWN_AREA.y);
+spawnArea.setAttributeNS(null, 'width', TURTLE_SPAWN_AREA.width);
+spawnArea.setAttributeNS(null, 'height', TURTLE_SPAWN_AREA.height);
+spawnArea.setAttributeNS(null, 'fill', 'transparent');
+spawnArea.setAttributeNS(null, 'stroke', 'black');
+spawnArea.setAttributeNS(null, 'stroke-width', '1');
+spawnArea.setAttributeNS(null, 'cursor', 'pointer');
+
+
+
+//svg.appendChild(spawnArea);
