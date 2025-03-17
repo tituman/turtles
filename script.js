@@ -62,7 +62,7 @@ function evMouseDown_t(e) {
     evMouseDown(e);
 }
 function evMouseDown(e) {
-    writeDebug('mousedown on svg turtle fired');
+    writeDebug(`mousedown on svg turtle fired: ${Dragging}`);
     wasDragging = false;  // Reset the flag on mousedown
     if (!Dragging) //---prevents dragging conflicts on other draggable elements---
     {
