@@ -449,7 +449,7 @@ function debugControls() {
     controlButtonsContainer.style.flexDirection = 'column';
     controlButtonsContainer.style.gap = '10px';
     controlButtonsContainer.style.padding = '10px';
-    controlButtonsContainer.style.backgroundColor = 'rgba(255, 255, 255, 0.3)';
+    controlButtonsContainer.style.backgroundColor = 'rgba(255, 255, 255, 1)';
     controlButtonsContainer.style.borderRadius = '5px';
     controlButtonsContainer.style.zIndex = '1000';
     controlButtonsContainer.id = id = 'debug';
