@@ -58,11 +58,11 @@ let lastPosGrid = { x: 0, y: 0 };
 let wasDragging;
 
 function evMouseDown_t(e) {
-    writeDebug('touchstart on svg event fired');
+    writeDebug('touchstart on turtle event fired');
     evMouseDown(e);
 }
 function evMouseDown(e) {
-    writeDebug('mousedown on svg event fired');
+    writeDebug('mousedown on svg turtle fired');
     wasDragging = false;  // Reset the flag on mousedown
     if (!Dragging) //---prevents dragging conflicts on other draggable elements---
     {
@@ -89,7 +89,7 @@ function evMouseDown(e) {
     }
 }
 function evMouseMove_t(e) {
-    writeDebug('TOUCHMOVE on svg event fired');
+    writeDebug('TOUCHMOVE on svg event fired on: ', e.target);
     evMouseMove(e);
 }
 function evMouseMove(e) {
@@ -473,6 +473,6 @@ let lines = 0;
 function writeDebug(...t) {
     let d = document.getElementById('debug');
     debugLines.unshift(`${lines++}: ${t.join(' ')}`);
-    debugLines.splice(5);
+    debugLines.splice(10);
     d.innerHTML = debugLines.join('<br />');
 }
