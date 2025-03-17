@@ -43,6 +43,7 @@ svg.addEventListener('mouseup', function (event) { evMouseUp(event) });
 svg.addEventListener('touchend', function (event) { evMouseUp(event) });
 svg.addEventListener('mousemove', function (event) { evMouseMove(event) });
 svg.addEventListener('touchmove', function (event) { evMouseMove(event) });
+svg.addEventListener('touchstart', () => {});
 //svg.addEventListener('touchstart', () => { });
 // svg.addEventListener('mousedown', function (event) { evMouseDown(event) });
 
@@ -88,7 +89,7 @@ function evMouseDown(e) {
 function evMouseMove(e) {
     if (Dragging) {
         
-    writeDebug('mouseMove on svg event fired');
+    writeDebug('TOUCHMOVE on svg event fired');
         wasDragging = true;  // Set the flag when dragging occurs
         //var pnt = DragTarget.ownerSVGElement.createSVGPoint();
         // cursor pointer in screen
