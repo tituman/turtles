@@ -12,19 +12,19 @@ const turtleColors = [
 
 let selectedColor = turtleColors[0]; // Default to first color
 
-function setupColorControls() {
+function setupControls() {
     // Create container for color buttons
-    const colorContainer = document.createElement('div');
-    colorContainer.style.position = 'fixed';
-    colorContainer.style.bottom = '10px';
-    colorContainer.style.left = '10px';
-    colorContainer.style.display = 'flex';
-    colorContainer.style.flexDirection = 'column';
-    colorContainer.style.gap = '10px';
-    colorContainer.style.padding = '10px';
-    colorContainer.style.backgroundColor = 'rgba(255, 255, 255, 0.8)';
-    colorContainer.style.borderRadius = '5px';
-    colorContainer.style.zIndex = '1000';
+    const controlButtonsContainer = document.createElement('div');
+    controlButtonsContainer.style.position = 'fixed';
+    controlButtonsContainer.style.bottom = '10px';
+    controlButtonsContainer.style.left = '10px';
+    controlButtonsContainer.style.display = 'flex';
+    controlButtonsContainer.style.flexDirection = 'column';
+    controlButtonsContainer.style.gap = '10px';
+    controlButtonsContainer.style.padding = '10px';
+    controlButtonsContainer.style.backgroundColor = 'rgba(255, 255, 255, 0.3)';
+    controlButtonsContainer.style.borderRadius = '5px';
+    controlButtonsContainer.style.zIndex = '1000';
 
     // Create color picker container
     const colorPicker = document.createElement('div');
@@ -55,7 +55,7 @@ function setupColorControls() {
         colorPicker.appendChild(colorButton);
     });
     colorPicker.id = 'colorPicker';
-    colorContainer.appendChild(colorPicker);
+    controlButtonsContainer.appendChild(colorPicker);
 
     // Create turtle buttons container
     const turtleButtons = document.createElement('div');
@@ -73,6 +73,7 @@ function setupColorControls() {
         const turtle = createTurtle(selectedColor);
         svg.appendChild(turtle);
     });
+    normalTurtleBtn.style.cursor =  'url("./turtleBtn.svg") 10 10 , pointer';
 
     // Create inverted turtle button
     const invertedTurtleBtn = document.createElement('button');
@@ -83,20 +84,21 @@ function setupColorControls() {
         const turtle = createTurtle(selectedColor, 0, 0, 0, true);
         svg.appendChild(turtle);
     });
+    invertedTurtleBtn.style.cursor =  'url("./turtleInvBtn.svg") 10 10 , pointer';
 
     turtleButtons.appendChild(normalTurtleBtn);
     turtleButtons.appendChild(invertedTurtleBtn);
     turtleButtons.appendChild(saveButton);
     turtleButtons.appendChild(copyButton);
-    colorContainer.appendChild(turtleButtons);
+    controlButtonsContainer.appendChild(turtleButtons);
 
-    colorContainer.id = 'colorContainer';
-    document.body.appendChild(colorContainer);
+    controlButtonsContainer.id = 'controlButtonsContainer';
+    document.body.appendChild(controlButtonsContainer);
 }
 
 function styleTurtleButton(button) {
     button.style.padding = '5px 15px';
-    button.style.fontSize = '20px';
+    button.style.fontSize = '30px';
     button.style.borderRadius = '5px';
     button.style.border = '1px solid #ccc';
     button.style.backgroundColor = 'white';
@@ -116,28 +118,28 @@ function styleTurtleButton(button) {
 }
 
 // Export the necessary functions and variables
-window.colorControls = {
-    setupColorControls,
+window.controlButtons = {
+    setupControls,
     getSelectedColor: () => selectedColor
 };
 
 // Call this after SVG creation
 const exportFunctions = setupExportFunctions();
 
-// Example button setup
+// save button setup
 const saveButton = document.createElement('button');
 saveButton.textContent = 'Save SVG';
 saveButton.onclick = exportFunctions.downloadSVG;
 styleTurtleButton(saveButton);
 saveButton.style.fontSize = '12px';
-//document.body.appendChild(saveButton);
+//document.body.appendChild(saveButton); --> append it to the turtles container
 
 const copyButton = document.createElement('button');
 copyButton.textContent = 'Copy SVG';
 copyButton.onclick = exportFunctions.copySVGToClipboard;
 styleTurtleButton(copyButton);
 copyButton.style.fontSize = '12px';
-//document.body.appendChild(copyButton);
+//document.body.appendChild(copyButton); --> append it to the turtles container
 
 function setupExportFunctions() {
     // Function to get the SVG content as a string

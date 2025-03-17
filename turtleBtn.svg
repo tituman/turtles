@@ -1,5 +1,5 @@
-<svg xmlns="http://www.w3.org/2000/svg" style="left: 0px; top: 0px; width: 150px; height: 100px; background-color: rgb(255, 255, 255);">
-  
-  <polygon fill="black" fill-opacity="1" stroke="black" stroke-width="2" vector-effect="non-scaling-stroke" points=" 0,0 0.75,0.4330127018922193 1,0 1.5,0 1.5,-0.8660254037844386 0.75,-1.299038105676658 0,-1.7320508075688772 -0.75,-1.299038105676658 -1,-1.7320508075688772 -1.5,-1.7320508075688772 -1.5,-0.8660254037844386 -0.75,-0.4330127018922193 -1,0 -0.75,0.4330127018922193" transform="scale(40, 40) translate(2, 2)" />
-  
+<svg xmlns="http://www.w3.org/2000/svg" style="left: 0px; top: 0px; width: 150px; height: 100px; background-color: rgba(255, 255, 255, 0);">
+
+  <polygon fill="black" fill-opacity="1" stroke="black" stroke-width="2" vector-effect="non-scaling-stroke" points=" 0,0 0.75,0.4330127018922193 1,0 1.5,0 1.5,-0.8660254037844386 0.75,-1.299038105676658 0,-1.7320508075688772 -0.75,-1.299038105676658 -1,-1.7320508075688772 -1.5,-1.7320508075688772 -1.5,-0.8660254037844386 -0.75,-0.4330127018922193 -1,0 -0.75,0.4330127018922193" transform="scale(10, 10) translate(1.75, 2.25)" />
+
 </svg>

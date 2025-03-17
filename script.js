@@ -14,13 +14,6 @@ const myScale = `scale(${SIDE}, ${SIDE})`; //scale the whole svg to SIDE
 const gridStepsInX = 1.5; // from 1 hex to the next in X direction, steps always in 1.5
 const gridStepsInY = sqrt3 / 2; // from 1 hex to the next in Y direction
 
-// Add after other constants
-// const TURTLE_SPAWN_AREA = {
-//     x: SIDE,
-//     y: SIDE,
-//     width: SIDE * 3,
-//     height: SIDE * 3
-// };
 
 //put SVG in the document
 const svg = createSvg();
@@ -35,8 +28,6 @@ const rectBackground = createRectforPattern();
 // find center of center hex of pattern
 const centerOfCenterHex = findCenterOfCenterHex();
 const transCenter = `translate(${centerOfCenterHex.x}, ${centerOfCenterHex.y})`;
-// setupTemplateTurtle();
-// setupTemplateTurtle(true);
 
 
 //add one turtle
@@ -50,6 +41,8 @@ svg.appendChild(myTurt);
 /******** more testing */
 svg.addEventListener('mouseup', function (event) { evMouseUp(event) });
 svg.addEventListener('mousemove', function (event) { evMouseMove(event) });
+svg.addEventListener('touchmove', function (event) { evMouseMove(event) });
+svg.addEventListener('touchend', function (event) { evMouseUp(event) });
 // svg.addEventListener('mousedown', function (event) { evMouseDown(event) });
 
 var TransformRequestObj;
@@ -251,6 +244,7 @@ function createTurtle(color, stepsInX, stepsInY, stepsIn60Deg, invert) {
 
     // Add the event listeners using existing functions
     turtPoly.addEventListener('mousedown', evMouseDown);
+    turtPoly.addEventListener('touchstart', evMouseDown);
     // {
     //     console.log('mousedown on turtle event fired, Dragging:', Dragging);
     //     evMouseDown(e);
@@ -386,7 +380,6 @@ function findCenterOfCenterHex() {
     let midSizeY = sizeOfSVGinY / 2;
     let y = 0;
     let yminusOne = 0;
-    //SIDE*sqrt3/2 is offset from 0,0; sqrt3*SIDE is the step in y direction
     for (y = SIDE * sqrt3 / 2; y < midSizeY; y = y + (sqrt3 * SIDE)) yminusOne = y;
     let diffDown = y - midSizeY;
     let diffUp = midSizeY - yminusOne;
@@ -402,8 +395,6 @@ function findNextGridPosition(x, y) {
     let nextX = SIDE, prevNextX = 0;
     let nextY = SIDE * sqrt3 / 2, prevNextY = 0;
 
-    //console.log(`SIDE: ${SIDE}, origY: ${y}`);
-    //console.log(`nextX: ${nextX}, nextY: ${nextY}`);
     //iterate until find the closest position in the grid
     while (true) {
         if (nextX < x) {
@@ -432,64 +423,8 @@ function findNextGridPosition(x, y) {
     return { x: nextX, y: nextY };
 }
 
-// Define the template turtle setup function
-function setupTemplateTurtle(inverted) {
-    const templateTurtle = createTurtle("black", 0, 0, 0);
-    templateTurtle.setAttributeNS(null, 'transform', 
-        `${myScale} ${offsetfromZero} translate(${1*gridStepsInX}, ${2*gridStepsInY})`);
-    if (inverted) {
-        templateTurtle.setAttributeNS(null, 'transform', 
-            `${myScale} ${offsetfromZero} translate(${4*gridStepsInX}, ${2*gridStepsInY}) scale(-1, 1)`);
-    } 
-    templateTurtle.setAttributeNS(null, 'fill-opacity', "1");
-    templateTurtle.removeEventListener('click', handleTurtleRotation);
-    templateTurtle.removeEventListener('mousedown', evMouseDown);
-
-    templateTurtle.addEventListener('click', function(e) {
-        // Use selected color instead of random color
-        const color = window.colorControls.getSelectedColor();
-        const newTurtle = createTurtle(color, 0, 0, 0, inverted);
-        svg.appendChild(newTurtle);
-        console.log('click on template, color:', color);
-    });
-    svg.appendChild(templateTurtle);
-    return templateTurtle;
-}
-
-// // Create clickable spawn area
-// const spawnArea = document.createElementNS(svgns, 'rect');
-// spawnArea.setAttributeNS(null, 'x', TURTLE_SPAWN_AREA.x);
-// spawnArea.setAttributeNS(null, 'y', TURTLE_SPAWN_AREA.y);
-// spawnArea.setAttributeNS(null, 'width', TURTLE_SPAWN_AREA.width);
-// spawnArea.setAttributeNS(null, 'height', TURTLE_SPAWN_AREA.height);
-// spawnArea.setAttributeNS(null, 'fill', 'transparent');
-// spawnArea.setAttributeNS(null, 'stroke', 'black');
-// spawnArea.setAttributeNS(null, 'stroke-width', '1');
-// spawnArea.setAttributeNS(null, 'cursor', 'pointer');
 
 
 
-//svg.appendChild(spawnArea);
+window.controlButtons.setupControls();
 
-
-
-
-
-// After SVG creation
-//setupSelection();
-window.colorControls.setupColorControls();
-//const templateTurtle = setupTemplateTurtle();
-
-// function setupSelection() {
-//     selection = document.createElementNS("http://www.w3.org/2000/svg", "rect");
-//     selection.setAttributeNS(null, 'id', 'selectionRect');
-//     selection.setAttributeNS(null, 'width', '0');
-//     selection.setAttributeNS(null, 'height', '0');
-//     selection.setAttributeNS(null, 'stroke', 'blue');
-//     selection.setAttributeNS(null, 'stroke-width', '1');
-//     selection.setAttributeNS(null, 'fill', 'none');
-//     selection.style.pointerEvents = 'none';
-//     selection.style.display = 'none';
-    
-//     svg.appendChild(selection);
-// }
