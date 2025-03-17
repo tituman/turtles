@@ -40,9 +40,9 @@ svg.appendChild(myTurt);
 
 /******** more testing */
 svg.addEventListener('mouseup', function (event) { evMouseUp(event) });
+svg.addEventListener('touchend', function (event) { evMouseUp(event) });
 svg.addEventListener('mousemove', function (event) { evMouseMove(event) });
 svg.addEventListener('touchmove', function (event) { evMouseMove(event) });
-svg.addEventListener('touchend', function (event) { evMouseUp(event) });
 //svg.addEventListener('touchstart', () => { });
 // svg.addEventListener('mousedown', function (event) { evMouseDown(event) });
 
@@ -87,6 +87,8 @@ function evMouseDown(e) {
 }
 function evMouseMove(e) {
     if (Dragging) {
+        
+    writeDebug('mouseMove on svg event fired');
         wasDragging = true;  // Set the flag when dragging occurs
         //var pnt = DragTarget.ownerSVGElement.createSVGPoint();
         // cursor pointer in screen
@@ -122,7 +124,9 @@ function evMouseMove(e) {
 
 }
 function evMouseUp(e) {
-    console.log('mouseup event on svg fired, Dragging:', Dragging);
+    
+    writeDebug('mousedup on svg event fired');
+    //console.log('mouseup event on svg fired, Dragging:', Dragging);
     Dragging = false;
 }
 
@@ -450,7 +454,7 @@ function debugControls() {
     controlButtonsContainer.id = id = 'debug';
     document.body.appendChild(controlButtonsContainer);
 }
-
+debugControls();
 let debugLines = [];
 let lines = 0;
 function writeDebug(...t) {
