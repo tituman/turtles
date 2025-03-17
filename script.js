@@ -42,8 +42,8 @@ svg.appendChild(myTurt);
 svg.addEventListener('mouseup', function (event) { evMouseUp(event) });
 svg.addEventListener('touchend', function (event) { evMouseUp_t(event) });
 svg.addEventListener('mousemove', function (event) { evMouseMove(event) });
-svg.addEventListener('touchmove', function (event) { evMouseMove_t(event) });
-svg.addEventListener('touchstart', () => {});
+svg.addEventListener('touchmove', function (event) { evMouseMove_t(event) }, { passive: true});
+//svg.addEventListener('touchstart', () => {});
 //svg.addEventListener('touchstart', () => { });
 // svg.addEventListener('mousedown', function (event) { evMouseDown(event) });
 
@@ -62,6 +62,7 @@ function evMouseDown_t(e) {
     evMouseDown(e);
 }
 function evMouseDown(e) {
+    writeDebug('mousedown on svg event fired');
     wasDragging = false;  // Reset the flag on mousedown
     if (!Dragging) //---prevents dragging conflicts on other draggable elements---
     {
@@ -113,6 +114,7 @@ function evMouseMove(e) {
         pntGrid.x = posInGrid.x + clientSVGOffset.x;
         pntGrid.y = posInGrid.y + clientSVGOffset.y;
 
+        //move enough that we have a new snap position and then apply transform
         if (Math.abs(lastPosGrid.x - posInGrid.x) > delta ||
             Math.abs(lastPosGrid.y - posInGrid.y) > delta) {
 
@@ -183,7 +185,7 @@ function createSvg() {
 
 // Define the rotation handler function globally
 function handleTurtleRotation(e) {
-    console.log('Click event fired, Dragging:', Dragging);
+    writeDebug('click on turtle event fired');
 
     if (wasDragging) {
         wasDragging = false;
@@ -193,19 +195,26 @@ function handleTurtleRotation(e) {
     const currentTransform = e.target.getAttribute('transform');
     console.log('Current transform:', currentTransform);
 
-    if (currentTransform.includes('matrix')) {
-        // If matrix exists, apply rotation before the matrix to preserve scaling
-        e.target.setAttributeNS(null, 'transform',
-            `${currentTransform} rotate(-60) `);
-        e.target.transform.baseVal.consolidate();
-    } else {
-        // For regular transforms, extract translate and combine with rotation and scale
-        const translateMatch = currentTransform.match(/translate\([^)]+\)/);
-        const translate = translateMatch ? translateMatch[0] : transCenter;
+    // if (currentTransform.includes('matrix')) {
+    //     // If matrix exists, apply rotation before the matrix to preserve scaling
+    //     e.target.setAttributeNS(null, 'transform',
+    //         `${currentTransform} rotate(-60) `);
+    // } else {
+    //     // For regular transforms, extract translate and combine with rotation and scale
+    //     const translateMatch = currentTransform.match(/translate\([^)]+\)/);
+    //     const translate = translateMatch ? translateMatch[0] : transCenter;
 
-        e.target.setAttributeNS(null, 'transform',
-            `${translate} rotate(60) ${myScale}`);
-    }
+    //     e.target.setAttributeNS(null, 'transform',
+    //         `${translate} rotate(60) ${myScale} `);
+    // }
+    
+    let transList = e.target.transform.baseVal;
+    let transformRequestObj = svg.createSVGTransform();
+    transformRequestObj.setRotate(-60, 0, 0);
+    transList.appendItem(transformRequestObj);
+    transList.consolidate();
+
+   
 
     console.log('New transform:', e.target.getAttribute('transform'));
 }
@@ -246,16 +255,15 @@ function createTurtle(color, stepsInX, stepsInY, stepsIn60Deg, invert) {
     turtPoly.setAttributeNS(null, 'points', turtPointsUnitary);
     let { myInvert, myTranslateArbitrary, myRotate } = createArbitraryTransform(stepsInX, stepsInY, stepsIn60Deg, invert);
     turtPoly.setAttributeNS(null, 'transform', `${transCenter} ${myScale} ${myTranslateArbitrary} ${myRotate} ${myInvert}`);
-    turtPoly.transform.baseVal.consolidate();
     // Add transition CSS
-    //turtPoly.style.transition = 'transform 1s ease';
+    //turtPoly.style.transition = 'transform 0.1s ease';
 
     let currentRotation = 0;
     let isDragging = false;
 
     // Add the event listeners using existing functions
     turtPoly.addEventListener('mousedown', evMouseDown);
-    turtPoly.addEventListener('touchstart', evMouseDown_t);
+    turtPoly.addEventListener('touchstart', evMouseDown_t, { passive: true});
 
 
     // {
