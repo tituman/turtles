@@ -89,10 +89,10 @@ function evMouseDown(e) {
     }
 }
 function evMouseMove_t(e) {
-    writeDebug('TOUCHMOVE on svg event fired on: ', e.target);
     evMouseMove(e);
 }
 function evMouseMove(e) {
+    writeDebug('TOUCHMOVE: ', Dragging);
     if (Dragging) {
         wasDragging = true;  // Set the flag when dragging occurs
         //var pnt = DragTarget.ownerSVGElement.createSVGPoint();
