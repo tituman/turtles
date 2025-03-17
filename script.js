@@ -58,6 +58,7 @@ let lastPosGrid = { x: 0, y: 0 };
 let wasDragging;
 
 function evMouseDown_t(e) {
+    e.stopImmediatePropagation();
     writeDebug('touchstart on turtle event fired');
     evMouseDown(e);
 }
@@ -85,14 +86,17 @@ function evMouseDown(e) {
 
         Dragging = true;
 
-        console.log('mousedown on svg event fired, Dragging:', Dragging);
+        writeDebug('mousedown on svg event fired, Dragging:', Dragging);
     }
+    
 }
 function evMouseMove_t(e) {
+    e.stopImmediatePropagation();
+    writeDebug(`TOUCHMOVE: ${Dragging}`);
     evMouseMove(e);
 }
 function evMouseMove(e) {
-    writeDebug('TOUCHMOVE: ', Dragging);
+    writeDebug('mouseMOVE:', Dragging);
     if (Dragging) {
         wasDragging = true;  // Set the flag when dragging occurs
         //var pnt = DragTarget.ownerSVGElement.createSVGPoint();
