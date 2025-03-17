@@ -43,6 +43,7 @@ svg.addEventListener('mouseup', function (event) { evMouseUp(event) });
 svg.addEventListener('mousemove', function (event) { evMouseMove(event) });
 svg.addEventListener('touchmove', function (event) { evMouseMove(event) });
 svg.addEventListener('touchend', function (event) { evMouseUp(event) });
+//svg.addEventListener('touchstart', () => { });
 // svg.addEventListener('mousedown', function (event) { evMouseDown(event) });
 
 var TransformRequestObj;
@@ -57,6 +58,7 @@ let wasDragging;
 
 
 function evMouseDown(e) {
+    writeDebug('mousedown on svg event fired');
     wasDragging = false;  // Reset the flag on mousedown
     console.log('mousedown on svg event fired, Dragging:', Dragging);
     if (!Dragging) //---prevents dragging conflicts on other draggable elements---
@@ -245,6 +247,8 @@ function createTurtle(color, stepsInX, stepsInY, stepsIn60Deg, invert) {
     // Add the event listeners using existing functions
     turtPoly.addEventListener('mousedown', evMouseDown);
     turtPoly.addEventListener('touchstart', evMouseDown);
+
+
     // {
     //     console.log('mousedown on turtle event fired, Dragging:', Dragging);
     //     evMouseDown(e);
@@ -266,7 +270,7 @@ function createArbitraryTransform(stepsInX = 0, stepsInY = 0, stepsIn60Deg = 0, 
     // invert=invert||1;
     let myTranslateArbitrary = ` translate(${stepsInX * gridStepsInX}, ${stepsInY * gridStepsInY})`;
     let myRotate = `rotate(${stepsIn60Deg * 60}, 0, 0)`;
-    
+
     let myInvert = `scale(1, 1)`;
     if (invert) myInvert = `scale(-1, 1)`;
     console.log("myInvert: ", myInvert);
@@ -426,5 +430,31 @@ function findNextGridPosition(x, y) {
 
 
 
-window.controlButtons.setupControls();
+//window.controlButtons.setupControls();
 
+
+
+function debugControls() {
+    // Create container for color buttons
+    const controlButtonsContainer = document.createElement('div');
+    controlButtonsContainer.style.position = 'fixed';
+    controlButtonsContainer.style.bottom = '10px';
+    controlButtonsContainer.style.left = '10px';
+    controlButtonsContainer.style.display = 'flex';
+    controlButtonsContainer.style.flexDirection = 'column';
+    controlButtonsContainer.style.gap = '10px';
+    controlButtonsContainer.style.padding = '10px';
+    controlButtonsContainer.style.backgroundColor = 'rgba(255, 255, 255, 0.3)';
+    controlButtonsContainer.style.borderRadius = '5px';
+    controlButtonsContainer.style.zIndex = '1000';
+    controlButtonsContainer.id = id = 'debug';
+}
+
+let debugLines = [];
+let lines = 0;
+function writeDebug(...t) {
+    let d = document.getElementById('debug');
+    debugLines.unshift(`${lines++}: ${t.join(' ')}`);
+    debugLines.splice(5);
+    d.innerHTML = debugLines.join('<br />');
+}
