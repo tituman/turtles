@@ -40,9 +40,9 @@ svg.appendChild(myTurt);
 
 /******** more testing */
 svg.addEventListener('mouseup', function (event) { evMouseUp(event) });
-svg.addEventListener('touchend', function (event) { evMouseUp(event) });
+svg.addEventListener('touchend', function (event) { evMouseUp_t(event) });
 svg.addEventListener('mousemove', function (event) { evMouseMove(event) });
-svg.addEventListener('touchmove', function (event) { evMouseMove(event) });
+svg.addEventListener('touchmove', function (event) { evMouseMove_t(event) });
 svg.addEventListener('touchstart', () => {});
 //svg.addEventListener('touchstart', () => { });
 // svg.addEventListener('mousedown', function (event) { evMouseDown(event) });
@@ -57,11 +57,12 @@ const delta = 0.05;
 let lastPosGrid = { x: 0, y: 0 };
 let wasDragging;
 
-
+function evMouseDown_t(e) {
+    writeDebug('touchstart on svg event fired');
+    evMouseDown(e);
+}
 function evMouseDown(e) {
-    writeDebug('mousedown on svg event fired');
     wasDragging = false;  // Reset the flag on mousedown
-    console.log('mousedown on svg event fired, Dragging:', Dragging);
     if (!Dragging) //---prevents dragging conflicts on other draggable elements---
     {
         DragTarget = e.target;
@@ -86,10 +87,12 @@ function evMouseDown(e) {
         console.log('mousedown on svg event fired, Dragging:', Dragging);
     }
 }
+function evMouseMove_t(e) {
+    writeDebug('TOUCHMOVE on svg event fired');
+    evMouseMove(e);
+}
 function evMouseMove(e) {
     if (Dragging) {
-        
-    writeDebug('TOUCHMOVE on svg event fired');
         wasDragging = true;  // Set the flag when dragging occurs
         //var pnt = DragTarget.ownerSVGElement.createSVGPoint();
         // cursor pointer in screen
@@ -124,10 +127,11 @@ function evMouseMove(e) {
     }
 
 }
+function evMouseUp_t(e) {
+    writeDebug('touchend on svg event fired');
+    evMouseUp(e);
+}
 function evMouseUp(e) {
-    
-    writeDebug('mousedup on svg event fired');
-    //console.log('mouseup event on svg fired, Dragging:', Dragging);
     Dragging = false;
 }
 
@@ -251,7 +255,7 @@ function createTurtle(color, stepsInX, stepsInY, stepsIn60Deg, invert) {
 
     // Add the event listeners using existing functions
     turtPoly.addEventListener('mousedown', evMouseDown);
-    turtPoly.addEventListener('touchstart', evMouseDown);
+    turtPoly.addEventListener('touchstart', evMouseDown_t);
 
 
     // {
