@@ -429,7 +429,7 @@ function findNextGridPosition(x, y) {
 
 
 
-
+//TODO: reapply this for color picker
 //window.controlButtons.setupControls();
 
 
@@ -448,6 +448,7 @@ function debugControls() {
     controlButtonsContainer.style.borderRadius = '5px';
     controlButtonsContainer.style.zIndex = '1000';
     controlButtonsContainer.id = id = 'debug';
+    document.body.appendChild(controlButtonsContainer);
 }
 
 let debugLines = [];
