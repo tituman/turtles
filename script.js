@@ -59,13 +59,13 @@ let wasDragging;
 
 function evMouseDown_t(e) {
     //e.stopImmediatePropagation();
-    writeDebug('touchstart on turtle event fired, dragging: ', Dragging);
+    //writeDebug('touchstart on turtle event fired, dragging: ', Dragging);
     evMouseDown(e);
 }
 function evMouseDown(e) {
 
     
-    writeDebug(`mousedown on svg fired, dragging: ${Dragging}`);
+    //writeDebug(`mousedown on svg fired, dragging: ${Dragging}`);
     wasDragging = false;  // Reset the flag on mousedown
     if (!Dragging) //---prevents dragging conflicts on other draggable elements---
     {
@@ -92,18 +92,18 @@ function evMouseDown(e) {
 
         Dragging = true;
 
-        console.log('mousedown on svg event fired, DragTarget.id:', DragTarget.id);
+        //console.log('mousedown on svg event fired, DragTarget.id:', DragTarget.id);
     }
 
 }
 function evMouseMove_t(e) {
     //e.stopImmediatePropagation();
     //e.preventDefault();
-    writeDebug(`TOUCHMOVE, Dragging: ${Dragging}`);
+    //writeDebug(`TOUCHMOVE, Dragging: ${Dragging}`);
     evMouseMove(e);
 }
 function evMouseMove(e) {
-    writeDebug('mouseMOVE, dragging:', Dragging);
+    //writeDebug('mouseMOVE, dragging:', Dragging);
     if (Dragging) {
         wasDragging = true;  // Set the flag when dragging occurs
         //var pnt = DragTarget.ownerSVGElement.createSVGPoint();
@@ -148,13 +148,13 @@ function evMouseMove(e) {
 
 }
 function evMouseUp_t(e) {
-    writeDebug('touchend on svg event fired, dragging: ', Dragging);
+    //writeDebug('touchend on svg event fired, dragging: ', Dragging);
     //e.preventDefault();
     evMouseUp(e);
 }
 function evMouseUp(e) {
     
-    writeDebug('mouseup on svg event fired, dragging: ', Dragging);
+    //writeDebug('mouseup on svg event fired, dragging: ', Dragging);
     Dragging = false;
 }
 
@@ -206,7 +206,7 @@ function createSvg() {
 
 // Define the rotation handler function globally
 function handleTurtleRotation(e) {
-    writeDebug('click on turtle event fired');
+    //writeDebug('click on turtle event fired');
 
     if (wasDragging) {
         wasDragging = false;
@@ -214,7 +214,7 @@ function handleTurtleRotation(e) {
     }
 
     const currentTransform = e.target.getAttribute('transform');
-    console.log('Current transform:', currentTransform);
+    //console.log('Current transform:', currentTransform);
 
     // if (currentTransform.includes('matrix')) {
     //     // If matrix exists, apply rotation before the matrix to preserve scaling
@@ -237,7 +237,7 @@ function handleTurtleRotation(e) {
 
 
 
-    console.log('New transform:', e.target.getAttribute('transform'));
+    //console.log('New transform:', e.target.getAttribute('transform'));
 }
 
 function createTurtle(color, stepsInX, stepsInY, stepsIn60Deg, invert) {
@@ -311,7 +311,7 @@ function createArbitraryTransform(stepsInX = 0, stepsInY = 0, stepsIn60Deg = 0, 
 
     let myInvert = `scale(1, 1)`;
     if (invert) myInvert = `scale(-1, 1)`;
-    console.log("myInvert: ", myInvert);
+    //console.log("myInvert: ", myInvert);
     return { myInvert, myTranslateArbitrary, myRotate };
 }
 
@@ -466,34 +466,32 @@ function findNextGridPosition(x, y) {
 }
 
 
-
-//TODO: reapply this for color picker
-//window.controlButtons.setupControls();
+window.controlButtons.setupControls();
 
 
 
-function debugControls() {
-    // Create container for color buttons
-    const controlButtonsContainer = document.createElement('div');
-    controlButtonsContainer.style.position = 'fixed';
-    controlButtonsContainer.style.top = '10px';
-    controlButtonsContainer.style.left = '10px';
-    controlButtonsContainer.style.display = 'flex';
-    controlButtonsContainer.style.flexDirection = 'column';
-    controlButtonsContainer.style.gap = '10px';
-    controlButtonsContainer.style.padding = '10px';
-    controlButtonsContainer.style.backgroundColor = 'rgba(255, 255, 255, 1)';
-    controlButtonsContainer.style.borderRadius = '5px';
-    controlButtonsContainer.style.zIndex = '1000';
-    controlButtonsContainer.id = id = 'debug';
-    document.body.appendChild(controlButtonsContainer);
-}
-debugControls();
-let debugLines = [];
-let lines = 0;
-function writeDebug(...t) {
-    let d = document.getElementById('debug');
-    debugLines.unshift(`${lines++}: ${t.join(' ')}`);
-    debugLines.splice(10);
-    d.innerHTML = debugLines.join('<br />');
-}
+// function debugControls() {
+//     // Create container for color buttons
+//     const controlButtonsContainer = document.createElement('div');
+//     controlButtonsContainer.style.position = 'fixed';
+//     controlButtonsContainer.style.top = '10px';
+//     controlButtonsContainer.style.left = '10px';
+//     controlButtonsContainer.style.display = 'flex';
+//     controlButtonsContainer.style.flexDirection = 'column';
+//     controlButtonsContainer.style.gap = '10px';
+//     controlButtonsContainer.style.padding = '10px';
+//     controlButtonsContainer.style.backgroundColor = 'rgba(255, 255, 255, 1)';
+//     controlButtonsContainer.style.borderRadius = '5px';
+//     controlButtonsContainer.style.zIndex = '1000';
+//     controlButtonsContainer.id = id = 'debug';
+//     document.body.appendChild(controlButtonsContainer);
+// }
+// debugControls();
+// let debugLines = [];
+// let lines = 0;
+// function writeDebug(...t) {
+//     let d = document.getElementById('debug');
+//     debugLines.unshift(`${lines++}: ${t.join(' ')}`);
+//     debugLines.splice(10);
+//     d.innerHTML = debugLines.join('<br />');
+// }
