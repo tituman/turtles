@@ -59,17 +59,17 @@ let wasDragging;
 
 function evMouseDown_t(e) {
     //e.stopImmediatePropagation();
-    writeDebug('touchstart on turtle event fired');
+    writeDebug('touchstart on turtle event fired, dragging: ', Dragging);
     evMouseDown(e);
 }
 function evMouseDown(e) {
 
     
-    writeDebug(`mousedown on svg fired: ${e.target.id}`);
+    writeDebug(`mousedown on svg fired, dragging: ${Dragging}`);
     wasDragging = false;  // Reset the flag on mousedown
     if (!Dragging) //---prevents dragging conflicts on other draggable elements---
     {
-        e.preventDefault();
+        //e.preventDefault();
         DragTarget = e.target;
         if (DragTarget.id === "background") return;
         //---reference point to its respective viewport--
@@ -99,11 +99,11 @@ function evMouseDown(e) {
 function evMouseMove_t(e) {
     //e.stopImmediatePropagation();
     //e.preventDefault();
-    writeDebug(`TOUCHMOVE: ${Dragging}`);
+    writeDebug(`TOUCHMOVE, Dragging: ${Dragging}`);
     evMouseMove(e);
 }
 function evMouseMove(e) {
-    writeDebug('mouseMOVE:', Dragging);
+    writeDebug('mouseMOVE, dragging:', Dragging);
     if (Dragging) {
         wasDragging = true;  // Set the flag when dragging occurs
         //var pnt = DragTarget.ownerSVGElement.createSVGPoint();
@@ -141,17 +141,20 @@ function evMouseMove(e) {
             //save last pos to compare next cycle
             [lastPosGrid.x, lastPosGrid.y] = [posInGrid.x, posInGrid.y];
         }
+        e.preventDefault();
+    }else{
+        
     }
 
 }
 function evMouseUp_t(e) {
-    writeDebug('touchend on svg event fired');
+    writeDebug('touchend on svg event fired, dragging: ', Dragging);
     //e.preventDefault();
     evMouseUp(e);
 }
 function evMouseUp(e) {
     
-    writeDebug('mouseup on svg event fired');
+    writeDebug('mouseup on svg event fired, dragging: ', Dragging);
     Dragging = false;
 }
 
