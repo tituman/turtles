@@ -3,7 +3,7 @@ const svgns = "http://www.w3.org/2000/svg";
 
 
 /******  preparations  *******/
-const SIDE = 20;//96;
+const SIDE = 30;//96;
 const sizeOfSVGinX = 900;
 const sizeOfSVGinY = 900;
 
@@ -35,14 +35,14 @@ const transCenter = `translate(${centerOfCenterHex.x}, ${centerOfCenterHex.y})`;
 let myTurt = createTurtle("blue");
 svg.appendChild(myTurt);
 //add another pink turtle
-myTurt = createTurtle(color = "pink", stepsInX = 0, stepsInY = 0, stepsIn60Deg = 1, invert = true);
+myTurt = createTurtle(color = "pink", stepsInX = -8, stepsInY = -7, stepsIn60Deg = 1, invert = true);
 svg.appendChild(myTurt);
 
 /******** more testing */
 svg.addEventListener('mouseup', function (event) { evMouseUp(event) });
 svg.addEventListener('touchend', function (event) { evMouseUp_t(event) });
 svg.addEventListener('mousemove', function (event) { evMouseMove(event) });
-svg.addEventListener('touchmove', function (event) { evMouseMove_t(event) }, { passive: true});
+svg.addEventListener('touchmove', function (event) { evMouseMove_t(event) });//, { passive: true});
 //svg.addEventListener('touchstart', () => {});
 //svg.addEventListener('touchstart', () => { });
 // svg.addEventListener('mousedown', function (event) { evMouseDown(event) });
@@ -58,21 +58,27 @@ let lastPosGrid = { x: 0, y: 0 };
 let wasDragging;
 
 function evMouseDown_t(e) {
-    e.stopImmediatePropagation();
+    //e.stopImmediatePropagation();
     writeDebug('touchstart on turtle event fired');
     evMouseDown(e);
 }
 function evMouseDown(e) {
-    writeDebug(`mousedown on svg turtle fired: ${e.target.id}`);
+
+    
+    writeDebug(`mousedown on svg fired: ${e.target.id}`);
     wasDragging = false;  // Reset the flag on mousedown
     if (!Dragging) //---prevents dragging conflicts on other draggable elements---
     {
+        e.preventDefault();
         DragTarget = e.target;
         if (DragTarget.id === "background") return;
         //---reference point to its respective viewport--
         let pnt = DragTarget.ownerSVGElement.createSVGPoint();
-        pnt.x = e.clientX;
-        pnt.y = e.clientY;
+        if (e.type == "touchstart") {
+            [pnt.x, pnt.y] = [e.touches[0].clientX, e.touches[0].clientY];
+        } else {
+            [pnt.x, pnt.y] = [e.clientX, e.clientY];
+        }
         //---elements transformed and/or in different(svg) viewports---
         let sCTM = DragTarget.getScreenCTM();
         let Pnt = pnt.matrixTransform(sCTM.inverse());
@@ -86,12 +92,13 @@ function evMouseDown(e) {
 
         Dragging = true;
 
-        writeDebug('mousedown on svg event fired, Dragging:', Dragging);
+        console.log('mousedown on svg event fired, DragTarget.id:', DragTarget.id);
     }
-    
+
 }
 function evMouseMove_t(e) {
-    e.stopImmediatePropagation();
+    //e.stopImmediatePropagation();
+    //e.preventDefault();
     writeDebug(`TOUCHMOVE: ${Dragging}`);
     evMouseMove(e);
 }
@@ -102,7 +109,11 @@ function evMouseMove(e) {
         //var pnt = DragTarget.ownerSVGElement.createSVGPoint();
         // cursor pointer in screen
         const pntClient = svg.createSVGPoint();
-        [pntClient.x, pntClient.y] = [e.clientX, e.clientY];
+        if (e.type == "touchmove") {
+            [pntClient.x, pntClient.y] = [e.touches[0].clientX, e.touches[0].clientY];
+        } else {
+            [pntClient.x, pntClient.y] = [e.clientX, e.clientY];
+        }
         //console.log(`client x and y: ${pntClient.x} , ${pntClient.y}`);
 
         //cusror pointer in svg coordinates
@@ -135,9 +146,12 @@ function evMouseMove(e) {
 }
 function evMouseUp_t(e) {
     writeDebug('touchend on svg event fired');
+    //e.preventDefault();
     evMouseUp(e);
 }
 function evMouseUp(e) {
+    
+    writeDebug('mouseup on svg event fired');
     Dragging = false;
 }
 
@@ -211,14 +225,14 @@ function handleTurtleRotation(e) {
     //     e.target.setAttributeNS(null, 'transform',
     //         `${translate} rotate(60) ${myScale} `);
     // }
-    
+
     let transList = e.target.transform.baseVal;
     let transformRequestObj = svg.createSVGTransform();
     transformRequestObj.setRotate(-60, 0, 0);
     transList.appendItem(transformRequestObj);
     transList.consolidate();
 
-   
+
 
     console.log('New transform:', e.target.getAttribute('transform'));
 }
@@ -267,7 +281,7 @@ function createTurtle(color, stepsInX, stepsInY, stepsIn60Deg, invert) {
 
     // Add the event listeners using existing functions
     turtPoly.addEventListener('mousedown', evMouseDown);
-    turtPoly.addEventListener('touchstart', evMouseDown_t, { passive: true});
+    turtPoly.addEventListener('touchstart', evMouseDown_t);//, { passive: true});
 
 
     // {
@@ -459,7 +473,7 @@ function debugControls() {
     // Create container for color buttons
     const controlButtonsContainer = document.createElement('div');
     controlButtonsContainer.style.position = 'fixed';
-    controlButtonsContainer.style.bottom = '10px';
+    controlButtonsContainer.style.top = '10px';
     controlButtonsContainer.style.left = '10px';
     controlButtonsContainer.style.display = 'flex';
     controlButtonsContainer.style.flexDirection = 'column';
