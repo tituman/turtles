@@ -134,7 +134,7 @@ function evMouseMove(e) {
             //save last pos to compare next cycle
             [lastPosGrid.x, lastPosGrid.y] = [posInGrid.x, posInGrid.y];
         }
-       e.preventDefault();
+        e.preventDefault();
     } else {
 
     }
@@ -210,11 +210,12 @@ function handleTurtleRotation(e) {
         wasDragging = false;
         return;
     }
-    
+
+    //set a timer and if double click happens, delete the turtle
     if (clickTimer == null) {
         clickTimer = setTimeout(function () {
             clickTimer = null;
-        }, 500)
+        }, 250)
     } else {
         clearTimeout(clickTimer);
         clickTimer = null;
@@ -229,9 +230,6 @@ function handleTurtleRotation(e) {
     transList.appendItem(transformRequestObj);
     transList.consolidate();
 
-
-
-    //console.log('New transform:', e.target.getAttribute('transform'));
 }
 
 function createTurtle(color, stepsInX, stepsInY, stepsIn60Deg, invert) {
@@ -265,7 +263,7 @@ function createTurtle(color, stepsInX, stepsInY, stepsIn60Deg, invert) {
     turtPoly.setAttributeNS(null, 'fill', color);
     turtPoly.setAttributeNS(null, 'fill-opacity', "0.5");
     turtPoly.setAttributeNS(null, 'stroke', "black");
-    turtPoly.setAttributeNS(null, 'stroke-width', "2");
+    turtPoly.setAttributeNS(null, 'stroke-width', "1");
     turtPoly.setAttributeNS(null, 'vector-effect', "non-scaling-stroke");
     turtPoly.setAttributeNS(null, 'points', turtPointsUnitary);
     let { myInvert, myTranslateArbitrary, myRotate } = createArbitraryTransform(stepsInX, stepsInY, stepsIn60Deg, invert);
@@ -334,7 +332,7 @@ function addHexesToPattern() {
     myHex.setAttributeNS(null, 'points', myHexPoints);
     myHex.setAttributeNS(null, 'fill', "none");
     myHex.setAttributeNS(null, 'stroke', "black");
-    myHex.setAttributeNS(null, 'stroke-width', "1");
+    myHex.setAttributeNS(null, 'stroke-width', "2");
     myHex.setAttributeNS(null, 'vector-effect', "non-scaling-stroke");
     myHex.setAttributeNS(null, 'transform', `${transformScale} ${offsetfromZero} `);
     patt.appendChild(myHex);
