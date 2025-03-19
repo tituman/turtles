@@ -1,6 +1,6 @@
 // Define 8 colors
 const turtleColors = [
-    '#FF0000', // Red
+/*    '#FF0000', // Red
     '#00FF00', // Green
     '#0000FF', // Blue
     '#FFFF00', // Yellow
@@ -8,6 +8,20 @@ const turtleColors = [
     '#00FFFF', // Cyan
     '#FFA500', // Orange
     '#800080'  // Purple
+    */
+    '#dfc75a', // yell  
+    '#b1821d', // brn  
+    '#2196F3', // blueGreen 
+    '#810d9e', // olive 
+    '#9e0d45', // red 
+    '#f39dc1', // pink 
+    '#a8a8a8', // gray 
+    '#724fa0', // purple 
+    '#617e81', // Green  
+    '#000000', // black
+    '#ffffff', // white
+    '#575757'  // edge
+
 ];
 
 let selectedColor = turtleColors[0]; // Default to first color
@@ -66,25 +80,31 @@ function setupControls() {
     // Create normal turtle button
 
     const normalTurtleBtn = document.createElement('button');
-    normalTurtleBtn.textContent = '🐢';
+    normalTurtleBtn.style.background='url("./turtleBtn.svg")';
+    normalTurtleBtn.style.backgroundPosition = '2px 10px';
+    normalTurtleBtn.style.backgroundRepeat = 'no-repeat';
+    normalTurtleBtn.textContent = '  . ';//🐢';
     normalTurtleBtn.title = 'Create normal turtle';
     styleTurtleButton(normalTurtleBtn);
+    normalTurtleBtn.style.cursor =  'url("./turtleBtn.svg") 10 10 , pointer';
     normalTurtleBtn.addEventListener('click', () => {
         const turtle = createTurtle(selectedColor);
         svg.appendChild(turtle);
     });
-    normalTurtleBtn.style.cursor =  'url("./turtleBtn.svg") 10 10 , pointer';
 
     // Create inverted turtle button
     const invertedTurtleBtn = document.createElement('button');
-    invertedTurtleBtn.textContent = '🐢⬌';
+    invertedTurtleBtn.style.background='url("./turtleInvBtn.svg")';
+    invertedTurtleBtn.style.backgroundPosition = '2px 10px';
+    invertedTurtleBtn.style.backgroundRepeat = 'no-repeat';
+    invertedTurtleBtn.textContent = '  . ';//'🐢⬌';
     invertedTurtleBtn.title = 'Create inverted turtle';
     styleTurtleButton(invertedTurtleBtn);
+    invertedTurtleBtn.style.cursor =  'url("./turtleInvBtn.svg") 10 10 , pointer';
     invertedTurtleBtn.addEventListener('click', () => {
         const turtle = createTurtle(selectedColor, 0, 0, 0, true);
         svg.appendChild(turtle);
     });
-    invertedTurtleBtn.style.cursor =  'url("./turtleInvBtn.svg") 10 10 , pointer';
 
     turtleButtons.appendChild(normalTurtleBtn);
     turtleButtons.appendChild(invertedTurtleBtn);

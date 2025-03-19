@@ -1,0 +1,41 @@
+background: 'url("./turtleBtn.svg") white',
+padding: '5px 15px',
+fontSize: '30px',
+borderRadius: '5px',
+border: '1px solid rgb(204, 204, 204)',
+cursor: 'url("./turtleBtn.svg") 10 10, pointer',
+display: 'flex',
+alignItems: 'center',
+justifyContent: 'center'
+
+background: url("./turtleBtn.svg") white;
+
+background: 'url("./turtleBtn.svg") white'
+
+rgb(69 63 10)
+''
+'#dfc75a', // yell  
+'#b1821d', // brn  
+'#2196F3', // blueGreen 
+'#810d9e', // olive 
+'#9e0d45', // red 
+'#f39dc1', // pink 
+'#a8a8a8', // gray 
+'#724fa0', // purple 
+'#617e81', // Green  
+'#000000', // black
+'#ffffff', // white
+'#575757'  // edge
+
+// yell  
+// brn  
+// blueGreen 
+// olive 
+// red 
+// pink 
+// gray 
+// purple 
+// Green  
+// black
+// white
+// edge
