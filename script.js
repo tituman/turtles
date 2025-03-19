@@ -10,7 +10,7 @@ const sizeOfSVGinY = 900;
 /******  constants  *******/
 const sqrt3 = Math.sqrt(3);
 const offsetfromZero = `translate(${1}, ${sqrt3 / 2})`;
-const myScale = `scale(${SIDE}, ${SIDE})`; //scale the whole svg to SIDE
+const transformScale = `scale(${SIDE}, ${SIDE})`; //scale the whole svg to SIDE
 const gridStepsInX = 1.5; // from 1 hex to the next in X direction, steps always in 1.5
 const gridStepsInY = sqrt3 / 2; // from 1 hex to the next in Y direction
 
@@ -18,7 +18,7 @@ const gridStepsInY = sqrt3 / 2; // from 1 hex to the next in Y direction
 //put SVG in the document
 const svg = createSvg();
 // add background pattern to document
-const patt = createdefinesAndPattern();
+const patt = createDefinesAndPattern();
 //create hexes and kites for the pattern
 addKitesToPattern();
 addHexesToPattern();
@@ -27,26 +27,26 @@ const rectBackground = createRectforPattern();
 
 // find center of center hex of pattern
 const centerOfCenterHex = findCenterOfCenterHex();
-const transCenter = `translate(${centerOfCenterHex.x}, ${centerOfCenterHex.y})`;
+const transformCenter = `translate(${centerOfCenterHex.x}, ${centerOfCenterHex.y})`;
 
 
 //add one turtle
 // //syntax: createTurtle(color, stepsInX, stepsInY, stepsIn60Deg, invert)
-let myTurt = createTurtle("blue");
-svg.appendChild(myTurt);
+//let myTurt = createTurtle("blue");
+svg.appendChild(createTurtle("blue"));
 //add another pink turtle
-myTurt = createTurtle(color = "pink", stepsInX = -8, stepsInY = -7, stepsIn60Deg = 1, invert = true);
-svg.appendChild(myTurt);
+svg.appendChild(
+    createTurtle("pink", -8, -7, 1, true)
+);
 
-/******** more testing */
+// event listeners for the svg, as opposed to the polygon turtle. 
+// here move and end because when the grid snaps, the turtle might jump out of the cursor 
 svg.addEventListener('mouseup', function (event) { evMouseUp(event) });
 svg.addEventListener('touchend', function (event) { evMouseUp_t(event) });
 svg.addEventListener('mousemove', function (event) { evMouseMove(event) });
-svg.addEventListener('touchmove', function (event) { evMouseMove_t(event) });//, { passive: true});
-//svg.addEventListener('touchstart', () => {});
-//svg.addEventListener('touchstart', () => { });
-// svg.addEventListener('mousedown', function (event) { evMouseDown(event) });
+svg.addEventListener('touchmove', function (event) { evMouseMove_t(event) });
 
+//vars for dragging
 var TransformRequestObj;
 var TransList;
 var DragTarget = null;
@@ -57,19 +57,16 @@ const delta = 0.05;
 let lastPosGrid = { x: 0, y: 0 };
 let wasDragging;
 
+//the touch event will call the mouse event
 function evMouseDown_t(e) {
-    //e.stopImmediatePropagation();
-    //writeDebug('touchstart on turtle event fired, dragging: ', Dragging);
     evMouseDown(e);
 }
+// mouse event
 function evMouseDown(e) {
-
-    
     //writeDebug(`mousedown on svg fired, dragging: ${Dragging}`);
     wasDragging = false;  // Reset the flag on mousedown
     if (!Dragging) //---prevents dragging conflicts on other draggable elements---
     {
-        //e.preventDefault();
         DragTarget = e.target;
         if (DragTarget.id === "background") return;
         //---reference point to its respective viewport--
@@ -92,14 +89,11 @@ function evMouseDown(e) {
 
         Dragging = true;
 
-        //console.log('mousedown on svg event fired, DragTarget.id:', DragTarget.id);
     }
 
 }
+
 function evMouseMove_t(e) {
-    //e.stopImmediatePropagation();
-    //e.preventDefault();
-    //writeDebug(`TOUCHMOVE, Dragging: ${Dragging}`);
     evMouseMove(e);
 }
 function evMouseMove(e) {
@@ -142,8 +136,8 @@ function evMouseMove(e) {
             [lastPosGrid.x, lastPosGrid.y] = [posInGrid.x, posInGrid.y];
         }
         e.preventDefault();
-    }else{
-        
+    } else {
+
     }
 
 }
@@ -153,7 +147,7 @@ function evMouseUp_t(e) {
     evMouseUp(e);
 }
 function evMouseUp(e) {
-    
+
     //writeDebug('mouseup on svg event fired, dragging: ', Dragging);
     Dragging = false;
 }
@@ -168,7 +162,7 @@ myCirc.setAttributeNS(null, 'cy', 0);
 //myCirc.setAttributeNS(null, 'style', 'draggable');
 console.log(`origCircle.x: ${SIDE * gridStepsInX * 4 + SIDE}, origCircle.y: ${SIDE * gridStepsInY * 5}`);
 myCirc.setAttributeNS(null, 'r', 0.5);
-myCirc.setAttributeNS(null, 'transform', `translate(${SIDE * gridStepsInX * 4 + SIDE},${SIDE * gridStepsInY * 5}) ${myScale}`);
+myCirc.setAttributeNS(null, 'transform', `translate(${SIDE * gridStepsInX * 4 + SIDE},${SIDE * gridStepsInY * 5}) ${transformScale}`);
 console.log(`orig translate of circle(${SIDE * gridStepsInX * 4 + SIDE},${SIDE * gridStepsInY * 5})`);
 myCirc.setAttributeNS(null, 'fill', "red");
 //myCirc.addEventListener('click', function (event) { evMouseDown(event) });
@@ -180,7 +174,7 @@ svg.appendChild(myCirc);
 
 /************* functions *********************/
 
-function createdefinesAndPattern() {
+function createDefinesAndPattern() {
     let patt = document.createElementNS(svgns, 'pattern');
     patt.setAttributeNS(null, 'id', 'hexes'); // useful for filling with the pattern later
     patt.setAttributeNS(null, 'patternUnits', 'userSpaceOnUse');
@@ -223,10 +217,10 @@ function handleTurtleRotation(e) {
     // } else {
     //     // For regular transforms, extract translate and combine with rotation and scale
     //     const translateMatch = currentTransform.match(/translate\([^)]+\)/);
-    //     const translate = translateMatch ? translateMatch[0] : transCenter;
+    //     const translate = translateMatch ? translateMatch[0] : transformCenter;
 
     //     e.target.setAttributeNS(null, 'transform',
-    //         `${translate} rotate(60) ${myScale} `);
+    //         `${translate} rotate(60) ${transformScale} `);
     // }
 
     let transList = e.target.transform.baseVal;
@@ -275,7 +269,7 @@ function createTurtle(color, stepsInX, stepsInY, stepsIn60Deg, invert) {
     turtPoly.setAttributeNS(null, 'vector-effect', "non-scaling-stroke");
     turtPoly.setAttributeNS(null, 'points', turtPointsUnitary);
     let { myInvert, myTranslateArbitrary, myRotate } = createArbitraryTransform(stepsInX, stepsInY, stepsIn60Deg, invert);
-    turtPoly.setAttributeNS(null, 'transform', `${transCenter} ${myScale} ${myTranslateArbitrary} ${myRotate} ${myInvert}`);
+    turtPoly.setAttributeNS(null, 'transform', `${transformCenter} ${transformScale} ${myTranslateArbitrary} ${myRotate} ${myInvert}`);
     // Add transition CSS
     //turtPoly.style.transition = 'transform 0.1s ease';
 
@@ -284,7 +278,8 @@ function createTurtle(color, stepsInX, stepsInY, stepsIn60Deg, invert) {
 
     // Add the event listeners using existing functions
     turtPoly.addEventListener('mousedown', evMouseDown);
-    turtPoly.addEventListener('touchstart', evMouseDown_t);//, { passive: true});
+    turtPoly.addEventListener('touchstart', evMouseDown_t);
+    //, { passive: true});
 
 
     // {
@@ -342,14 +337,14 @@ function addHexesToPattern() {
     myHex.setAttributeNS(null, 'stroke', "black");
     myHex.setAttributeNS(null, 'stroke-width', "1");
     myHex.setAttributeNS(null, 'vector-effect', "non-scaling-stroke");
-    myHex.setAttributeNS(null, 'transform', `${myScale} ${offsetfromZero} `);
+    myHex.setAttributeNS(null, 'transform', `${transformScale} ${offsetfromZero} `);
     patt.appendChild(myHex);
 
     // hexagon to the right and lower down
     let myTrasnformHex2 = `translate(${1.5}, ${sqrt3 / 2})`;
     myHex = myHex.cloneNode(true);
     myHex.setAttributeNS(null, 'stroke', "black");
-    myHex.setAttributeNS(null, 'transform', `${myScale} ${offsetfromZero} ${myTrasnformHex2} `);
+    myHex.setAttributeNS(null, 'transform', `${transformScale} ${offsetfromZero} ${myTrasnformHex2} `);
     patt.appendChild(myHex);
 }
 
@@ -370,32 +365,32 @@ function addKitesToPattern() {
         myPoly.setAttributeNS(null, 'stroke-width', "0.5");
         myPoly.setAttributeNS(null, 'vector-effect', "non-scaling-stroke");
         myPoly.setAttributeNS(null, 'points', myPoints);
-        myPoly.setAttributeNS(null, 'transform', `${myScale} ${offsetfromZero} ${myRotate} `);
+        myPoly.setAttributeNS(null, 'transform', `${transformScale} ${offsetfromZero} ${myRotate} `);
         svg.appendChild(myPoly);
         patt.appendChild(myPoly);
 
         //create the other 4 kites around the center kite
         myPoly = myPoly.cloneNode(true);
         myPoly.setAttributeNS(null, 'stroke', "green");
-        myPoly.setAttributeNS(null, 'transform', `${myScale} ${offsetfromZero}  translate(${1.5}, ${sqrt3 / 2}) ${myRotate}`);
+        myPoly.setAttributeNS(null, 'transform', `${transformScale} ${offsetfromZero}  translate(${1.5}, ${sqrt3 / 2}) ${myRotate}`);
         svg.appendChild(myPoly);
         patt.appendChild(myPoly);
 
         myPoly = myPoly.cloneNode(true);
         myPoly.setAttributeNS(null, 'stroke', "green");
-        myPoly.setAttributeNS(null, 'transform', `${myScale} ${offsetfromZero}  translate(${-1.5}, ${sqrt3 / 2}) ${myRotate}`);
+        myPoly.setAttributeNS(null, 'transform', `${transformScale} ${offsetfromZero}  translate(${-1.5}, ${sqrt3 / 2}) ${myRotate}`);
         svg.appendChild(myPoly);
         patt.appendChild(myPoly);
 
         myPoly = myPoly.cloneNode(true);
         myPoly.setAttributeNS(null, 'stroke', "green");
-        myPoly.setAttributeNS(null, 'transform', `${myScale} ${offsetfromZero}  translate(${1.5}, ${-sqrt3 / 2}) ${myRotate}`);
+        myPoly.setAttributeNS(null, 'transform', `${transformScale} ${offsetfromZero}  translate(${1.5}, ${-sqrt3 / 2}) ${myRotate}`);
         svg.appendChild(myPoly);
         patt.appendChild(myPoly);
 
         myPoly = myPoly.cloneNode(true);
         myPoly.setAttributeNS(null, 'stroke', "green");
-        myPoly.setAttributeNS(null, 'transform', `${myScale} ${offsetfromZero}  translate(${-1.5}, ${-sqrt3 / 2}) ${myRotate}`);
+        myPoly.setAttributeNS(null, 'transform', `${transformScale} ${offsetfromZero}  translate(${-1.5}, ${-sqrt3 / 2}) ${myRotate}`);
         svg.appendChild(myPoly);
         patt.appendChild(myPoly);
 
@@ -406,28 +401,28 @@ function findCenterOfCenterHex() {
 
     let midSizeX = sizeOfSVGinX / 2;
     let x = 0;
-    let xminusOne = 0;
+    let xMinusOne = 0;
     //SIDE is offset from 0,0; 3*SIDE is the step in x direction
-    for (x = SIDE + (3 * SIDE); x < midSizeX; x = x + (3 * SIDE)) xminusOne = x;
+    for (x = SIDE + (3 * SIDE); x < midSizeX; x = x + (3 * SIDE)) xMinusOne = x;
     //x is now the next possible center after center of svg, on the right side (because of the last increment in the for loop)
     //now lets find if the one before, on the left, was closer to the center
     let diffRight = x - midSizeX;
-    let diffLeft = midSizeX - xminusOne;
+    let diffLeft = midSizeX - xMinusOne;
     if (diffRight > diffLeft) {
-        //the left side, xminusOne, is the closest to the center
-        x = xminusOne;
+        //the left side, xMinusOne, is the closest to the center
+        x = xMinusOne;
     }
 
     //same for y
     let midSizeY = sizeOfSVGinY / 2;
     let y = 0;
-    let yminusOne = 0;
-    for (y = SIDE * sqrt3 / 2; y < midSizeY; y = y + (sqrt3 * SIDE)) yminusOne = y;
+    let yMinusOne = 0;
+    for (y = SIDE * sqrt3 / 2; y < midSizeY; y = y + (sqrt3 * SIDE)) yMinusOne = y;
     let diffDown = y - midSizeY;
-    let diffUp = midSizeY - yminusOne;
+    let diffUp = midSizeY - yMinusOne;
     if (diffDown > diffUp) {
-        //the upper side, yminusOne is the closest to the center
-        y = yminusOne;
+        //the upper side, yMinusOne is the closest to the center
+        y = yMinusOne;
     }
     return { x: x, y: y };
 }
