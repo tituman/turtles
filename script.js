@@ -272,7 +272,7 @@ function createTurtle(color, stepsInX, stepsInY, stepsIn60Deg, invert) {
 
     // Add the event listeners using existing functions
     turtPoly.addEventListener('mousedown', evMouseDown);
-    turtPoly.addEventListener('touchstart', evMouseDown_t);//, { passive: true});
+    turtPoly.addEventListener('touchstart', evMouseDown);//, { passive: true});
 
 
     // {
