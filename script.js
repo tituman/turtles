@@ -41,11 +41,11 @@ svg.appendChild(createTurtle("pink", -8, -7, 1, true));
 // event listeners for the svg, as opposed to the polygon turtle. 
 // here move and end because when the grid snaps, the turtle might jump out of the cursor 
 svg.addEventListener('mouseup', function (event) { evMouseUp(event) });
-svg.addEventListener('touchend', function (event) { evMouseUp_t(event) });
+svg.addEventListener('touchend', function (event) { evMouseUp(event) });
 svg.addEventListener('mousemove', function (event) { evMouseMove(event) });
-svg.addEventListener('touchmove', function (event) { evMouseMove_t(event) });//, { passive: true});
+svg.addEventListener('touchmove', function (event) { evMouseMove(event) });//, { passive: true});
 
-//vars for dragging
+//vars for dragging, deleting, rotating
 var TransformRequestObj;
 var TransList;
 var DragTarget = null;
@@ -55,11 +55,12 @@ var OffsetY = 0;
 const delta = 0.05;
 let lastPosGrid = { x: 0, y: 0 };
 let wasDragging;
+var clickTimer = null;
 
 //the touch event will call the mouse event
-function evMouseDown_t(e) {
-    evMouseDown(e);
-}
+// function evMouseDown_t(e) {
+//     evMouseDown(e);
+// }
 // mouse event
 function evMouseDown(e) {
     //writeDebug(`mousedown on svg fired, dragging: ${Dragging}`);
@@ -92,9 +93,9 @@ function evMouseDown(e) {
 
 }
 
-function evMouseMove_t(e) {
-    evMouseMove(e);
-}
+// function evMouseMove_t(e) {
+//     evMouseMove(e);
+// }
 function evMouseMove(e) {
     //writeDebug('mouseMOVE, dragging:', Dragging);
     if (Dragging) {
@@ -140,20 +141,15 @@ function evMouseMove(e) {
     }
 
 }
-function evMouseUp_t(e) {
-    //writeDebug('touchend on svg event fired, dragging: ', Dragging);
-    //e.preventDefault();
-    evMouseUp(e);
-}
+// function evMouseUp_t(e) {
+//     //writeDebug('touchend on svg event fired, dragging: ', Dragging);
+//     //e.preventDefault();
+//     evMouseUp(e);
+// }
 
-var clickTimer = null;
 function evMouseUp(e) {
-
     //writeDebug('mouseup on svg event fired, dragging: ', Dragging);
     Dragging = false;
-
-
-
 }
 
 
