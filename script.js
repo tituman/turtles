@@ -1,4 +1,5 @@
-// adapted from http://stackoverflow.com/questions/12786797/how-to-draw-rectangles-dynamically-in-svg
+// thanks to stackoverflow and AI assistants ;-)
+
 const svgns = "http://www.w3.org/2000/svg";
 
 
@@ -35,16 +36,14 @@ const transformCenter = `translate(${centerOfCenterHex.x}, ${centerOfCenterHex.y
 //let myTurt = createTurtle("blue");
 svg.appendChild(createTurtle("blue"));
 //add another pink turtle
-svg.appendChild(
-    createTurtle("pink", -8, -7, 1, true)
-);
+svg.appendChild(createTurtle("pink", -8, -7, 1, true));
 
 // event listeners for the svg, as opposed to the polygon turtle. 
 // here move and end because when the grid snaps, the turtle might jump out of the cursor 
 svg.addEventListener('mouseup', function (event) { evMouseUp(event) });
 svg.addEventListener('touchend', function (event) { evMouseUp_t(event) });
 svg.addEventListener('mousemove', function (event) { evMouseMove(event) });
-svg.addEventListener('touchmove', function (event) { evMouseMove_t(event) });
+svg.addEventListener('touchmove', function (event) { evMouseMove_t(event) });//, { passive: true});
 
 //vars for dragging
 var TransformRequestObj;
@@ -135,7 +134,7 @@ function evMouseMove(e) {
             //save last pos to compare next cycle
             [lastPosGrid.x, lastPosGrid.y] = [posInGrid.x, posInGrid.y];
         }
-        e.preventDefault();
+       e.preventDefault();
     } else {
 
     }
@@ -146,10 +145,15 @@ function evMouseUp_t(e) {
     //e.preventDefault();
     evMouseUp(e);
 }
+
+var clickTimer = null;
 function evMouseUp(e) {
 
     //writeDebug('mouseup on svg event fired, dragging: ', Dragging);
     Dragging = false;
+
+
+
 }
 
 
@@ -206,23 +210,19 @@ function handleTurtleRotation(e) {
         wasDragging = false;
         return;
     }
+    
+    if (clickTimer == null) {
+        clickTimer = setTimeout(function () {
+            clickTimer = null;
+        }, 500)
+    } else {
+        clearTimeout(clickTimer);
+        clickTimer = null;
+        svg.removeChild(e.target);
+        return;
+    }
 
     const currentTransform = e.target.getAttribute('transform');
-    //console.log('Current transform:', currentTransform);
-
-    // if (currentTransform.includes('matrix')) {
-    //     // If matrix exists, apply rotation before the matrix to preserve scaling
-    //     e.target.setAttributeNS(null, 'transform',
-    //         `${currentTransform} rotate(-60) `);
-    // } else {
-    //     // For regular transforms, extract translate and combine with rotation and scale
-    //     const translateMatch = currentTransform.match(/translate\([^)]+\)/);
-    //     const translate = translateMatch ? translateMatch[0] : transformCenter;
-
-    //     e.target.setAttributeNS(null, 'transform',
-    //         `${translate} rotate(60) ${transformScale} `);
-    // }
-
     let transList = e.target.transform.baseVal;
     let transformRequestObj = svg.createSVGTransform();
     transformRequestObj.setRotate(-60, 0, 0);
@@ -278,8 +278,7 @@ function createTurtle(color, stepsInX, stepsInY, stepsIn60Deg, invert) {
 
     // Add the event listeners using existing functions
     turtPoly.addEventListener('mousedown', evMouseDown);
-    turtPoly.addEventListener('touchstart', evMouseDown_t);
-    //, { passive: true});
+    turtPoly.addEventListener('touchstart', evMouseDown_t);//, { passive: true});
 
 
     // {
