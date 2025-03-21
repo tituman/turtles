@@ -128,11 +128,12 @@ function create4HexAndTurtle(color, stepsInX, stepsInY, stepsIn60Deg, invert) {
 
     let myGroup2 = document.createElementNS(svgns, 'g');
 
-    myGroup2.setAttributeNS(null, 'transform', `translate(0, 0)`);
-    myGroup2.appendChild(myGroup);
-
     let myTurtpoly = createTurtle(color, stepsInX, stepsInY, stepsIn60Deg, invert);
     myGroup2.appendChild(myTurtpoly);
+
+    myGroup2.setAttributeNS(null, 'transform', `translate(0, 0)`);
+    myGroup2.appendChild(myGroup);
+    
 
     svg.appendChild(myGroup2);
 
