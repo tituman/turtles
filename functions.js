@@ -1,5 +1,17 @@
 /************* functions *********************/
 
+function createSvg() {
+    let svg = document.createElementNS(svgns, 'svg');
+    svg.style.left = '0';
+    svg.style.top = '0';
+    svg.style.width = sizeOfSVGinX;
+    svg.style.height = sizeOfSVGinY;
+    svg.style.backgroundColor = '#f0f0f0';
+    //svg.setAttributeNS(null, 'id', 'svgTest');
+    document.getElementById("theDrawing").appendChild(svg);
+    return svg;
+}
+
 function createDefinesAndPattern() {
     let patt = document.createElementNS(svgns, 'pattern');
     patt.setAttributeNS(null, 'id', 'hexes'); // useful for filling with the pattern later
@@ -10,18 +22,6 @@ function createDefinesAndPattern() {
     svg.appendChild(defs);
     defs.appendChild(patt);
     return patt;
-}
-
-function createSvg() {
-    let svg = document.createElementNS(svgns, 'svg');
-    svg.style.left = '0';
-    svg.style.top = '0';
-    svg.style.width = sizeOfSVGinX;
-    svg.style.height = sizeOfSVGinY;
-    svg.style.backgroundColor = "#999999";
-    //svg.setAttributeNS(null, 'id', 'svgTest');
-    document.getElementById("theDrawing").appendChild(svg);
-    return svg;
 }
 
 
@@ -63,12 +63,12 @@ function createTurtle(color, stepsInX, stepsInY, stepsIn60Deg, invert) {
     let { myInvert, myTranslateArbitrary, myRotate } = createArbitraryTransform(stepsInX, stepsInY, stepsIn60Deg, invert);
     turtPoly.setAttributeNS(null, 'transform', `${transformCenter} ${transformScale} ${myTranslateArbitrary} ${myRotate} ${myInvert}`);
 
-    // Add the event listeners using existing functions
-    turtPoly.addEventListener('mousedown', evMouseDown);
-    turtPoly.addEventListener('touchstart', evMouseDown);//, { passive: true});
+    // // Add the event listeners using existing functions
+    // turtPoly.addEventListener('mousedown', evMouseDown);
+    // turtPoly.addEventListener('touchstart', evMouseDown);//, { passive: true});
 
-    // clicks handler for rotation and deletes
-    turtPoly.addEventListener('click', handleRotationDelete);
+    // // clicks handler for rotation and deletes
+    // turtPoly.addEventListener('click', handleRotationDelete);
 
     return turtPoly;
 }
@@ -96,7 +96,54 @@ function createRectforPattern() {
     return myRect;
 }
 
-function addHexesToPattern() {
+//create scaled group of 4 hexagons around turtle
+function create4Hex(color, stepsInX, stepsInY, stepsIn60Deg, invert) {
+    //let myTrasnformHex2 = `translate(${7*1.5}, ${7*sqrt3 / 2})`;
+    let myGroup = document.createElementNS(svgns,'g');
+    //first hex
+    let myHex = createHex();
+    myHex.setAttributeNS(null, 'stroke-width', '2');
+    myGroup.appendChild(myHex);
+    //second hex
+    myHex = myHex.cloneNode(true);
+    myHex.setAttributeNS(null, 'transform', `translate(${gridStepsInX}, ${-gridStepsInY})`);
+    myGroup.appendChild(myHex);
+    //third hex
+    myHex = myHex.cloneNode(true);
+    myHex.setAttributeNS(null, 'transform', `translate(${0}, ${-2*gridStepsInY})`);
+    myGroup.appendChild(myHex);
+    // fourth hex
+    myHex = myHex.cloneNode(true);
+    myHex.setAttributeNS(null, 'transform', `translate(${-gridStepsInX}, ${-gridStepsInY})`);
+    myGroup.appendChild(myHex);
+
+    //append group
+    
+    let myTurtpoly = createTurtle(color, stepsInX, stepsInY, stepsIn60Deg, invert);
+    //myGroup.appendChild(myTurtpoly);
+    myGroup.setAttributeNS(null, 'transform', `${transformCenter} ${transformScale} `);
+
+    
+    let myGroup2 = document.createElementNS(svgns,'g');
+    myGroup2.appendChild(myGroup);
+    myGroup2.appendChild(myTurtpoly);
+    
+    svg.appendChild(myGroup2);
+
+
+
+    // Add the event listeners using existing functions
+    myGroup2.addEventListener('mousedown', evMouseDown);
+    myGroup2.addEventListener('touchstart', evMouseDown);//, { passive: true});
+
+    // clicks handler for rotation and deletes
+    myGroup2.addEventListener('click', handleRotationDelete);
+
+    return myGroup2;
+}
+
+//unitary hexagon, will need to be scaled by ${transformScale}
+function createHex() {
     let myHexPoints = "";
     //rotate around a circle, marking its six points to create a hexagon
     for (let i = 0; i < 6; i++) {
@@ -110,13 +157,20 @@ function addHexesToPattern() {
     myHex.setAttributeNS(null, 'stroke', "black");
     myHex.setAttributeNS(null, 'stroke-width', "2");
     myHex.setAttributeNS(null, 'vector-effect', "non-scaling-stroke");
+    return myHex;
+    
+}
+
+function addHexesToPattern() {
+    let myHex = createHex();
+    myHex.setAttributeNS(null, 'stroke-width', '0.25');
     myHex.setAttributeNS(null, 'transform', `${transformScale} ${offsetfromZero} `);
     patt.appendChild(myHex);
 
     // hexagon to the right and lower down
     let myTrasnformHex2 = `translate(${1.5}, ${sqrt3 / 2})`;
     myHex = myHex.cloneNode(true);
-    myHex.setAttributeNS(null, 'stroke', "black");
+    //myHex.setAttributeNS(null, 'stroke', "black");
     myHex.setAttributeNS(null, 'transform', `${transformScale} ${offsetfromZero} ${myTrasnformHex2} `);
     patt.appendChild(myHex);
 }
