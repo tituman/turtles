@@ -38,9 +38,9 @@ const transformCenter = `translate(${centerOfCenterHex.x}, ${centerOfCenterHex.y
 //add one turtle
 // //syntax: createTurtle(color, stepsInX, stepsInY, stepsIn60Deg, invert)
 //let myTurt = createTurtle("blue");
-svg.appendChild(createTurtle("blue"));
+svg.appendChild(create4HexAndTurtle("blue"));
 //add another pink turtle
-svg.appendChild(createTurtle("pink", -8, -7, 1, true));
+svg.appendChild(create4HexAndTurtle("pink", 0, 0, 0, true));
 
 // event listeners for the svg, as opposed to the polygon turtle. 
 // here move, mouseup and touchend because when the grid snaps, the turtle might jump out of the cursor 
@@ -53,6 +53,7 @@ svg.addEventListener('touchmove', function (event) { evMouseMove(event) });//, {
 //vars for dragging, deleting, rotating
 var TransformRequestObj;
 var TransList;
+var TransLists = [];
 var DragTarget = null;
 var Dragging = false;
 var OffsetX = 0;
@@ -70,7 +71,7 @@ if (DEBUG) {
     debugControls();
 }
 
-writeDebug("bliblu");
-writeDebug("bliblu");
-writeDebug("bliblu");
-writeDebug("bliblu");
+// writeDebug("bliblu");
+// writeDebug("bliblu");
+// writeDebug("bliblu");
+// writeDebug("bliblu");

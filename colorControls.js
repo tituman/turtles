@@ -88,7 +88,7 @@ function setupControls() {
     styleTurtleButton(normalTurtleBtn);
     normalTurtleBtn.style.cursor =  'url("./turtleBtn.svg") 10 10 , pointer';
     normalTurtleBtn.addEventListener('click', () => {
-        const turtle = createTurtle(selectedColor);
+        const turtle = create4HexAndTurtle(selectedColor);
         svg.appendChild(turtle);
     });
 
@@ -102,7 +102,7 @@ function setupControls() {
     styleTurtleButton(invertedTurtleBtn);
     invertedTurtleBtn.style.cursor =  'url("./turtleInvBtn.svg") 10 10 , pointer';
     invertedTurtleBtn.addEventListener('click', () => {
-        const turtle = createTurtle(selectedColor, 0, 0, 0, true);
+        const turtle = create4HexAndTurtle(selectedColor, 0, 0, 0, true);
         svg.appendChild(turtle);
     });
 
