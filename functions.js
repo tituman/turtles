@@ -297,12 +297,12 @@ function findNextGridPosition(x, y) {
 
 // mouse event
 function evMouseDown(e) {
+    
+    console.log('touch start on: ', e.target);
     wasDragging = false;  // Reset the flag on mousedown
     if (!Dragging) //---prevents dragging conflicts on other draggable elements---
     {
         DragTarget = e.target;
-        writeDebug(DragTarget.parentElement.firstChild);
-        console.log(DragTarget.parentElement.firstChild);
         if (DragTarget.id === "background") return;
         //---reference point to its respective viewport--
         let pnt = DragTarget.ownerSVGElement.createSVGPoint();
@@ -402,14 +402,17 @@ function handleRotationDelete(e) {
     if (clickTimer == null) {
         clickTimer = setTimeout(function () {
             clickTimer = null;
-        }, 250)
+            
+        }, 500)
     } else {
+        console.log('doubleclick on: ', e.target);
         clearTimeout(clickTimer);
         clickTimer = null;
         svg.removeChild(e.target.parentElement);
         return;
     }
 
+        console.log('singleclick on: ', e.target);
     //handle groups instead of just elements with parentNode
     //const currentTransform = e.target.parentElement.getAttribute('transform');
     e.target.parentElement.childNodes.forEach(child => {

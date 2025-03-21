@@ -71,7 +71,7 @@ if (DEBUG) {
     debugControls();
 }
 
-writeDebug("bliblu");
-writeDebug("bliblu");
-writeDebug("bliblu");
-writeDebug("bliblu");
+// writeDebug("bliblu");
+// writeDebug("bliblu");
+// writeDebug("bliblu");
+// writeDebug("bliblu");
