@@ -97,9 +97,12 @@ function createRectforPattern() {
 }
 
 //create scaled group of 4 hexagons around turtle
-function create4Hex(color, stepsInX, stepsInY, stepsIn60Deg, invert) {
+function create4HexAndTurtle(color, stepsInX, stepsInY, stepsIn60Deg, invert) {
+    let myInvert = `scale(1, 1)`;
+    if (invert) myInvert = `scale(-1, 1)`;
+    //console.log("myInvert: ", myInvert);
     //let myTrasnformHex2 = `translate(${7*1.5}, ${7*sqrt3 / 2})`;
-    let myGroup = document.createElementNS(svgns,'g');
+    let myGroup = document.createElementNS(svgns, 'g');
     //first hex
     let myHex = createHex();
     myHex.setAttributeNS(null, 'stroke-width', '2');
@@ -110,7 +113,7 @@ function create4Hex(color, stepsInX, stepsInY, stepsIn60Deg, invert) {
     myGroup.appendChild(myHex);
     //third hex
     myHex = myHex.cloneNode(true);
-    myHex.setAttributeNS(null, 'transform', `translate(${0}, ${-2*gridStepsInY})`);
+    myHex.setAttributeNS(null, 'transform', `translate(${0}, ${-2 * gridStepsInY})`);
     myGroup.appendChild(myHex);
     // fourth hex
     myHex = myHex.cloneNode(true);
@@ -118,25 +121,26 @@ function create4Hex(color, stepsInX, stepsInY, stepsIn60Deg, invert) {
     myGroup.appendChild(myHex);
 
     //append group
-    
-    let myTurtpoly = createTurtle(color, stepsInX, stepsInY, stepsIn60Deg, invert);
-    //myGroup.appendChild(myTurtpoly);
-    myGroup.setAttributeNS(null, 'transform', `${transformCenter} ${transformScale} `);
 
-    
-    let myGroup2 = document.createElementNS(svgns,'g');
-    
+    //myGroup.appendChild(myTurtpoly);
+    myGroup.setAttributeNS(null, 'transform', `${transformCenter} ${transformScale} ${myInvert}`);
+
+
+    let myGroup2 = document.createElementNS(svgns, 'g');
+
     myGroup2.setAttributeNS(null, 'transform', `translate(0, 0)`);
     myGroup2.appendChild(myGroup);
+
+    let myTurtpoly = createTurtle(color, stepsInX, stepsInY, stepsIn60Deg, invert);
     myGroup2.appendChild(myTurtpoly);
-    
+
     svg.appendChild(myGroup2);
 
 
 
     // Add the event listeners using existing functions
-    //myGroup2.addEventListener('mousedown', evMouseDown);
-    //myGroup2.addEventListener('touchstart', evMouseDown);//, { passive: true});
+    myGroup2.addEventListener('mousedown', evMouseDown);
+    myGroup2.addEventListener('touchstart', evMouseDown);//, { passive: true});
 
     // clicks handler for rotation and deletes
     myGroup2.addEventListener('click', handleRotationDelete);
@@ -160,7 +164,7 @@ function createHex() {
     myHex.setAttributeNS(null, 'stroke-width', "2");
     myHex.setAttributeNS(null, 'vector-effect', "non-scaling-stroke");
     return myHex;
-    
+
 }
 
 function addHexesToPattern() {
@@ -293,11 +297,12 @@ function findNextGridPosition(x, y) {
 
 // mouse event
 function evMouseDown(e) {
-    //writeDebug(e.target.parentnode.class);
     wasDragging = false;  // Reset the flag on mousedown
     if (!Dragging) //---prevents dragging conflicts on other draggable elements---
     {
-        DragTarget = e.target.parentNode;
+        DragTarget = e.target;
+        writeDebug(DragTarget.parentElement.firstChild);
+        console.log(DragTarget.parentElement.firstChild);
         if (DragTarget.id === "background") return;
         //---reference point to its respective viewport--
         let pnt = DragTarget.ownerSVGElement.createSVGPoint();
@@ -306,13 +311,25 @@ function evMouseDown(e) {
         } else {
             [pnt.x, pnt.y] = [e.clientX, e.clientY];
         }
+        //writeDebug('clientX: ', pnt.x);
         //---elements transformed and/or in different(svg) viewports---
         let sCTM = DragTarget.getScreenCTM();
         let Pnt = pnt.matrixTransform(sCTM.inverse());
 
         TransformRequestObj = DragTarget.ownerSVGElement.createSVGTransform();
         //---attach new or existing transform to element, init its transform list---
-        TransList = DragTarget.transform.baseVal;
+        // e.target.parentElement.childNodes.forEach(el, i => {
+        //     TransLists[i] = child.transform.baseVal;
+        // });
+        let i = 0;
+        for (var child = DragTarget.parentElement.firstChild; child !== null; child = child.nextSibling) {
+            TransLists[i] = child.transform.baseVal;
+            i++;
+        }
+        // TransLists[0] = DragTarget.parentElement.childNodes[0].transform.baseVal;
+        // TransLists[1] = DragTarget.parentElement.childNodes[1].transform.baseVal;
+
+        //TransList = DragTarget.transform.baseVal;
 
         OffsetX = Pnt.x
         OffsetY = Pnt.y
@@ -352,8 +369,12 @@ function evMouseMove(e) {
             //---elements in different(svg) viewports, and/or transformed ---
             let pnt = pntGrid.matrixTransform(DragTarget.getScreenCTM().inverse());
             TransformRequestObj.setTranslate(pnt.x, pnt.y)
-            TransList.appendItem(TransformRequestObj)
-            TransList.consolidate()
+            TransLists.forEach(tl => {
+                tl.appendItem(TransformRequestObj);
+                tl.consolidate();
+            });
+            // TransList.appendItem(TransformRequestObj)
+            // TransList.consolidate()
             //save last pos to compare next cycle
             [lastPosGrid.x, lastPosGrid.y] = [posInGrid.x, posInGrid.y];
         }
@@ -371,7 +392,7 @@ function evMouseUp(e) {
 // rotation handler function, happens on click, but deletes the turtle if doubleclicked
 function handleRotationDelete(e) {
     //writeDebug('click on turtle event fired, parentNode: ', e.target.parentElement.childNodes[1]);
-    
+
     if (wasDragging) {
         wasDragging = false;
         return;
