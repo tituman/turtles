@@ -125,6 +125,8 @@ function create4Hex(color, stepsInX, stepsInY, stepsIn60Deg, invert) {
 
     
     let myGroup2 = document.createElementNS(svgns,'g');
+    
+    myGroup2.setAttributeNS(null, 'transform', `translate(0, 0)`);
     myGroup2.appendChild(myGroup);
     myGroup2.appendChild(myTurtpoly);
     
@@ -133,8 +135,8 @@ function create4Hex(color, stepsInX, stepsInY, stepsIn60Deg, invert) {
 
 
     // Add the event listeners using existing functions
-    myGroup2.addEventListener('mousedown', evMouseDown);
-    myGroup2.addEventListener('touchstart', evMouseDown);//, { passive: true});
+    //myGroup2.addEventListener('mousedown', evMouseDown);
+    //myGroup2.addEventListener('touchstart', evMouseDown);//, { passive: true});
 
     // clicks handler for rotation and deletes
     myGroup2.addEventListener('click', handleRotationDelete);
@@ -291,10 +293,11 @@ function findNextGridPosition(x, y) {
 
 // mouse event
 function evMouseDown(e) {
+    //writeDebug(e.target.parentnode.class);
     wasDragging = false;  // Reset the flag on mousedown
     if (!Dragging) //---prevents dragging conflicts on other draggable elements---
     {
-        DragTarget = e.target;
+        DragTarget = e.target.parentNode;
         if (DragTarget.id === "background") return;
         //---reference point to its respective viewport--
         let pnt = DragTarget.ownerSVGElement.createSVGPoint();
@@ -367,8 +370,8 @@ function evMouseUp(e) {
 
 // rotation handler function, happens on click, but deletes the turtle if doubleclicked
 function handleRotationDelete(e) {
-    //writeDebug('click on turtle event fired');
-
+    //writeDebug('click on turtle event fired, parentNode: ', e.target.parentElement.childNodes[1]);
+    
     if (wasDragging) {
         wasDragging = false;
         return;
@@ -382,16 +385,25 @@ function handleRotationDelete(e) {
     } else {
         clearTimeout(clickTimer);
         clickTimer = null;
-        svg.removeChild(e.target);
+        svg.removeChild(e.target.parentElement);
         return;
     }
 
-    const currentTransform = e.target.getAttribute('transform');
-    let transList = e.target.transform.baseVal;
-    let transformRequestObj = svg.createSVGTransform();
-    transformRequestObj.setRotate(-60, 0, 0);
-    transList.appendItem(transformRequestObj);
-    transList.consolidate();
+    //handle groups instead of just elements with parentNode
+    //const currentTransform = e.target.parentElement.getAttribute('transform');
+    e.target.parentElement.childNodes.forEach(child => {
+        //console.log(child);
+        let transList = child.transform.baseVal;
+
+        //console.log(transList);
+        let transformRequestObj = svg.createSVGTransform();
+        transformRequestObj.setRotate(-60, 0, 0);
+        transList.appendItem(transformRequestObj);
+        transList.consolidate();
+
+        //console.log(transList);
+    });
+
 
 }
 
