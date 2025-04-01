@@ -7,7 +7,6 @@ function createSvg() {
     svg.style.width = sizeOfSVGinX;
     svg.style.height = sizeOfSVGinY;
     svg.style.backgroundColor = '#f0f0f0';
-    //svg.setAttributeNS(null, 'id', 'svgTest');
     document.getElementById("theDrawing").appendChild(svg);
     return svg;
 }
@@ -62,14 +61,6 @@ function createTurtle(color, stepsInX, stepsInY, stepsIn60Deg, invert) {
     turtPoly.setAttributeNS(null, 'points', turtPointsUnitary);
     let { myInvert, myTranslateArbitrary, myRotate } = createArbitraryTransform(stepsInX, stepsInY, stepsIn60Deg, invert);
     turtPoly.setAttributeNS(null, 'transform', `${transformCenter} ${transformScale} ${myTranslateArbitrary} ${myRotate} ${myInvert}`);
-
-    // // Add the event listeners using existing functions
-    // turtPoly.addEventListener('mousedown', evMouseDown);
-    // turtPoly.addEventListener('touchstart', evMouseDown);//, { passive: true});
-
-    // // clicks handler for rotation and deletes
-    // turtPoly.addEventListener('click', handleRotationDelete);
-
     return turtPoly;
 }
 
@@ -79,7 +70,6 @@ function createArbitraryTransform(stepsInX = 0, stepsInY = 0, stepsIn60Deg = 0, 
 
     let myInvert = `scale(1, 1)`;
     if (invert) myInvert = `scale(-1, 1)`;
-    //console.log("myInvert: ", myInvert);
     return { myInvert, myTranslateArbitrary, myRotate };
 }
 
@@ -100,8 +90,6 @@ function createRectforPattern() {
 function create4HexAndTurtle(color, stepsInX, stepsInY, stepsIn60Deg, invert) {
     let myInvert = `scale(1, 1)`;
     if (invert) myInvert = `scale(-1, 1)`;
-    //console.log("myInvert: ", myInvert);
-    //let myTrasnformHex2 = `translate(${7*1.5}, ${7*sqrt3 / 2})`;
     let myGroup = document.createElementNS(svgns, 'g');
     //first hex
     let myHex = createHex();
@@ -121,8 +109,6 @@ function create4HexAndTurtle(color, stepsInX, stepsInY, stepsIn60Deg, invert) {
     myGroup.appendChild(myHex);
 
     //append group
-
-    //myGroup.appendChild(myTurtpoly);
     myGroup.setAttributeNS(null, 'transform', `${transformCenter} ${transformScale} ${myInvert}`);
 
 
@@ -132,8 +118,11 @@ function create4HexAndTurtle(color, stepsInX, stepsInY, stepsIn60Deg, invert) {
     myGroup2.appendChild(myTurtpoly);
 
     myGroup2.setAttributeNS(null, 'transform', `translate(0, 0)`);
-    myGroup2.appendChild(myGroup);
-    
+
+    let showHex = document.getElementById('showHexes').checked;
+    if (showHex){
+        myGroup2.appendChild(myGroup);
+    }
 
     svg.appendChild(myGroup2);
 
@@ -177,7 +166,6 @@ function addHexesToPattern() {
     // hexagon to the right and lower down
     let myTrasnformHex2 = `translate(${1.5}, ${sqrt3 / 2})`;
     myHex = myHex.cloneNode(true);
-    //myHex.setAttributeNS(null, 'stroke', "black");
     myHex.setAttributeNS(null, 'transform', `${transformScale} ${offsetfromZero} ${myTrasnformHex2} `);
     patt.appendChild(myHex);
 }
@@ -299,7 +287,6 @@ function findNextGridPosition(x, y) {
 // mouse event
 function evMouseDown(e) {
     
-    console.log('touch start on: ', e.target);
     wasDragging = false;  // Reset the flag on mousedown
     if (!Dragging) //---prevents dragging conflicts on other draggable elements---
     {
@@ -312,25 +299,21 @@ function evMouseDown(e) {
         } else {
             [pnt.x, pnt.y] = [e.clientX, e.clientY];
         }
-        //writeDebug('clientX: ', pnt.x);
+        
         //---elements transformed and/or in different(svg) viewports---
         let sCTM = DragTarget.getScreenCTM();
         let Pnt = pnt.matrixTransform(sCTM.inverse());
 
         TransformRequestObj = DragTarget.ownerSVGElement.createSVGTransform();
         //---attach new or existing transform to element, init its transform list---
-        // e.target.parentElement.childNodes.forEach(el, i => {
-        //     TransLists[i] = child.transform.baseVal;
-        // });
+
+        //reset translists
+        TransLists = [];
         let i = 0;
         for (var child = DragTarget.parentElement.firstChild; child !== null; child = child.nextSibling) {
             TransLists[i] = child.transform.baseVal;
             i++;
         }
-        // TransLists[0] = DragTarget.parentElement.childNodes[0].transform.baseVal;
-        // TransLists[1] = DragTarget.parentElement.childNodes[1].transform.baseVal;
-
-        //TransList = DragTarget.transform.baseVal;
 
         OffsetX = Pnt.x
         OffsetY = Pnt.y
@@ -374,8 +357,6 @@ function evMouseMove(e) {
                 tl.appendItem(TransformRequestObj);
                 tl.consolidate();
             });
-            // TransList.appendItem(TransformRequestObj)
-            // TransList.consolidate()
             //save last pos to compare next cycle
             [lastPosGrid.x, lastPosGrid.y] = [posInGrid.x, posInGrid.y];
         }
@@ -392,8 +373,7 @@ function evMouseUp(e) {
 
 // rotation handler function, happens on click, but deletes the turtle if doubleclicked
 function handleRotationDelete(e) {
-    //writeDebug('click on turtle event fired, parentNode: ', e.target.parentElement.childNodes[1]);
-
+    
     if (wasDragging) {
         wasDragging = false;
         return;
@@ -406,27 +386,20 @@ function handleRotationDelete(e) {
             
         }, 500)
     } else {
-        console.log('doubleclick on: ', e.target);
         clearTimeout(clickTimer);
         clickTimer = null;
         svg.removeChild(e.target.parentElement);
         return;
     }
 
-        console.log('singleclick on: ', e.target);
     //handle groups instead of just elements with parentNode
-    //const currentTransform = e.target.parentElement.getAttribute('transform');
     e.target.parentElement.childNodes.forEach(child => {
-        //console.log(child);
         let transList = child.transform.baseVal;
-
-        //console.log(transList);
         let transformRequestObj = svg.createSVGTransform();
         transformRequestObj.setRotate(-60, 0, 0);
         transList.appendItem(transformRequestObj);
         transList.consolidate();
 
-        //console.log(transList);
     });
 
 

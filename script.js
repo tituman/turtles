@@ -7,7 +7,8 @@ const svgns = "http://www.w3.org/2000/svg";
 const SIDE = 30;//96;
 const sizeOfSVGinX = 900;
 const sizeOfSVGinY = 900;
-const DEBUG = true;
+const DEBUG = false;
+const SHOWHEXAGONS = false;
 
 /******  constants  *******/
 const sqrt3 = Math.sqrt(3);
@@ -36,8 +37,7 @@ const transformCenter = `translate(${centerOfCenterHex.x}, ${centerOfCenterHex.y
 
 
 //add one turtle
-// //syntax: createTurtle(color, stepsInX, stepsInY, stepsIn60Deg, invert)
-//let myTurt = createTurtle("blue");
+//syntax: createTurtle(color, stepsInX, stepsInY, stepsIn60Deg, invert)
 svg.appendChild(create4HexAndTurtle("blue"));
 //add another pink turtle
 svg.appendChild(create4HexAndTurtle("pink", 0, 0, 0, true));
@@ -47,7 +47,7 @@ svg.appendChild(create4HexAndTurtle("pink", 0, 0, 0, true));
 svg.addEventListener('mouseup', function (event) { evMouseUp(event) });
 svg.addEventListener('touchend', function (event) { evMouseUp(event) });
 svg.addEventListener('mousemove', function (event) { evMouseMove(event) });
-svg.addEventListener('touchmove', function (event) { evMouseMove(event) });//, { passive: true});
+svg.addEventListener('touchmove', function (event) { evMouseMove(event) });
 //the click, mousedown, touchstart are added directly to the turtles upon turtle creation
 
 //vars for dragging, deleting, rotating
@@ -70,8 +70,3 @@ window.controlButtons.setupControls();
 if (DEBUG) {
     debugControls();
 }
-
-// writeDebug("bliblu");
-// writeDebug("bliblu");
-// writeDebug("bliblu");
-// writeDebug("bliblu");
